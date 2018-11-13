@@ -10,7 +10,7 @@ import com.example.apple.geektech.paint.PaintView;
 public class MainActivity extends AppCompatActivity {
 
     PaintView paintView;
-    Button clearButton;
+    Button clearButton,redrawBtn,clearFramesBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,9 +20,11 @@ public class MainActivity extends AppCompatActivity {
         initEvents();
     }
 
-    private void init(){
-        paintView = (PaintView) findViewById(R.id.main_paint_view);
-        clearButton = (Button)  findViewById(R.id.clear_canvas);
+    private void init() {
+        paintView = findViewById(R.id.main_paint_view);
+        clearButton = findViewById(R.id.clear_canvas);
+        redrawBtn = findViewById(R.id.redraw);
+        clearFramesBtn = findViewById(R.id.clear_frames);
     }
 
     private void initEvents() {
@@ -30,6 +32,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 paintView.clearCanvas();
+            }
+        });
+
+        redrawBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                paintView.redrawFrames();
+            }
+        });
+
+        clearFramesBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                paintView.clearFrames();
             }
         });
     }
