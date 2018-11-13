@@ -84,8 +84,8 @@ public class PaintView extends View {
                                 frames.get(i).y2
                         );
                 }
-                invalidate();
             }
+            invalidate();
         }
     }
 
