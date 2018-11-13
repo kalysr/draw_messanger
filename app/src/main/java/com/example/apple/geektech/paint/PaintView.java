@@ -64,7 +64,6 @@ public class PaintView extends View {
     public void redrawFrames() {
         clearCanvas();
         if (frames.size() > 0) {
-            mPath.moveTo(frames.get(0).x1, frames.get(0).y1);
             for (int i = 0; i < frames.size(); i++) {
                 switch (frames.get(i).type) {
                     case Frame.LINE_TO:
