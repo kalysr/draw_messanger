@@ -68,22 +68,6 @@ public class PaintView extends View {
     }
 
     public void redrawFrames() throws InterruptedException {
-        //  clearCanvas();
-
-        // if (frames.size() > 0) {
-        //     for (int i = 0; i < frames.size(); i++) {
-        //         current_position = i;
-        //         Log.d("BUG", "redrawFrames: " + frames.get(i).time);
-        //         Thread.sleep(33);
-
-//                for (int t = Starttime; t <= EndTime; t++) {
-//                if (frames.get(i).time == t)
-
-
-        /*
-
-         */
-
 
         new android.os.Handler().postDelayed(
                 new Runnable() {
@@ -120,28 +104,6 @@ public class PaintView extends View {
                         }
                     }
                 }, 10);
-
-                            /*
-
-                            current_position++;
-                            try {
-                                redrawFrames();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-
-                        } else {
-                            current_position = 0;
-                        }
-
-
-               */
-
-//                        Thread.sleep(1);
-//                }
-        //               invalidate();
-        //           }
-        //      }
     }
 
     @Override
