@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "339193750398",
+    "firebase_url": "https://draw-messanger.firebaseio.com",
+    "project_id": "draw-messanger",
+    "storage_bucket": "draw-messanger.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:339193750398:android:0e8790165a4e275f",
+        "android_client_info": {
+          "package_name": "com.example.apple.geektech"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "339193750398-7t4ibs01agudooo7m3gjpoa1eml05ghk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAct131TBhfA5Yt_Rr43DfaZKJwmJlvlnY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

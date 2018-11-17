@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public class PaintView extends View {
@@ -24,7 +25,7 @@ public class PaintView extends View {
     private float mCurrY = 0f;
     private float mStartX = 0f;
     private float mStartY = 0f;
-
+    private Listener listener;
     int Starttime = 0;
     int EndTime = 0;
 
@@ -68,11 +69,9 @@ public class PaintView extends View {
     }
 
     public void redrawFrames() throws InterruptedException {
-
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
-
                         if (frames.size() > current_position) {
                             switch (frames.get(current_position).type) {
                                 case Frame.LINE_TO:
@@ -144,12 +143,17 @@ public class PaintView extends View {
                 (y + mCurrY) / 2
         );
 
-        frames.add(new Frame(
+        Frame frame = new Frame(
                 mCurrX,
                 mCurrY,
                 (x + mCurrX) / 2,
                 (y + mCurrY) / 2, time()
-        ));
+        );
+        frames.add(frame);
+
+        if (listener != null) {
+            listener.onDraw(frame);
+        }
 
         mCurrX = x;
         mCurrY = y;
@@ -159,18 +163,26 @@ public class PaintView extends View {
     private void actionUp() {
         EndTime = Integer.parseInt(String.valueOf(System.currentTimeMillis()).substring(6));
         mPath.lineTo(mCurrX, mCurrY);
-        frames.add(new Frame(
+        Frame frame = new Frame(
                 mCurrX,
                 mCurrY,
                 Frame.LINE_TO, EndTime
-        ));
+        );
+        frames.add(frame);
+        if (listener != null) {
+            listener.onDraw(frame);
+        }
         if (mStartY == mCurrY && mStartX == mCurrX) {
             mPath.addCircle(mCurrX, mCurrY, 5f, Path.Direction.CW);
-            frames.add(new Frame(
+            Frame frame1 = new Frame(
                     mCurrX,
                     mCurrY,
                     Frame.CIRCLE, EndTime
-            ));
+            );
+            frames.add(frame1);
+            if (listener != null) {
+                listener.onDraw(frame1);
+            }
         }
     }
 
@@ -179,7 +191,12 @@ public class PaintView extends View {
         Starttime = Integer.parseInt(String.valueOf(System.currentTimeMillis()).substring(6));
 
         mPath.moveTo(x, y);
-        frames.add(new Frame(x, y, Frame.MOVE_TO, Starttime));
+        Frame frame = new Frame(x, y, Frame.MOVE_TO, Starttime);
+        frames.add(frame);
+        if (listener != null) {
+            listener.onDraw(frame);
+        }
+
         mCurrX = x;
         mCurrY = y;
     }
@@ -189,8 +206,8 @@ public class PaintView extends View {
         return time;
     }
 
-    public class Frame {
-        float x1, y1, x2, y2;
+    public static class Frame implements Serializable {
+        public float x1, y1, x2, y2;
         int time = 0;
         int type = 0;
 
@@ -213,6 +230,49 @@ public class PaintView extends View {
             this.time = time;
         }
 
+        @Override
+        public String toString() {
+            String value = "x1 : " + x1 + "\ny1 : " + y1 + "\nx2 : " + x2
+                    + "\ny2 : " + y2 + "\ntype : " + type;
+            return value;
+        }
+
     }
 
+    public void setListener(Listener listener) {
+        this.listener = listener;
+    }
+
+    public void addFrame(final Frame frame) {
+        new Thread(
+                new Runnable() {
+                    public void run() {
+                        if (frame != null) {
+                            switch (frame.type) {
+                                case Frame.LINE_TO:
+                                    mPath.lineTo(frame.x1, frame.y1);
+                                    break;
+                                case Frame.CIRCLE:
+                                    mPath.addCircle(frame.x1, frame.y1, 5f, Path.Direction.CW);
+                                    break;
+                                case Frame.MOVE_TO:
+                                    mPath.moveTo(frame.x1, frame.y1);
+                                    break;
+                                default:
+                                    mPath.quadTo(
+                                            frame.x1,
+                                            frame.y1,
+                                            frame.x2,
+                                            frame.y2
+                                    );
+                            }
+                            invalidate();
+                        }
+                    }
+                }).start();
+    }
+
+    public static interface Listener {
+        public void onDraw(Frame frame);
+    }
 }
