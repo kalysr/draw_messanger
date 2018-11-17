@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.example.apple.geektech.paint.PaintView;
+import com.example.apple.geektech.paint.drawThread;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,7 +39,18 @@ public class MainActivity extends AppCompatActivity {
         redrawBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                paintView.redrawFrames();
+                /*drawThread drawThread = new drawThread();
+                drawThread.paintView = paintView;
+                drawThread.start();*/
+//                    drawThread.run();
+//                    paintVredrawiew.redrawFrames();
+
+                // Redraw
+                try {
+                    paintView.redrawFrames();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
