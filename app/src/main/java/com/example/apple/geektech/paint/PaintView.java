@@ -7,7 +7,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -16,6 +15,8 @@ import java.util.ArrayList;
 
 public class PaintView extends View {
 
+    public static final String ACTION_CLEAR_CANVAS = "ACTION_CLEAR_CANVAS";
+    public static final String ACTION_CLEAR_FRAMES = "ACTION_CLEAR_FRAMES";
     private final Paint mPaint = new Paint();
     private final Path mPath = new Path();
     private ArrayList<Frame> frames = new ArrayList<>(0);
@@ -57,15 +58,30 @@ public class PaintView extends View {
         mPaint.setAntiAlias(true);
     }
 
-    public void clearCanvas() {
+    public void _clearCanvas() {
         mPath.reset();
         current_position = 0;
         invalidate();
     }
 
-    public void clearFrames() {
+    public void clearCanvas() {
+        _clearCanvas();
+        invalidate();
+        if(listener != null){
+            listener.onClearCanvas();
+        }
+    }
+    public void _clearFrames() {
         frames = new ArrayList<>(0);
-        clearCanvas();
+        _clearCanvas();
+    }
+
+    public void clearFrames() {
+        _clearFrames();
+        _clearCanvas();
+        if(listener != null){
+            listener.onClearFrames();
+        }
     }
 
     public void redrawFrames() throws InterruptedException {
@@ -244,7 +260,8 @@ public class PaintView extends View {
     }
 
     public void addFrame(final Frame frame) {
-        new Thread(
+        frames.add(frame);
+        new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
                         if (frame != null) {
@@ -269,10 +286,12 @@ public class PaintView extends View {
                             invalidate();
                         }
                     }
-                }).start();
+                },0);
     }
 
     public static interface Listener {
         public void onDraw(Frame frame);
+        public void onClearCanvas();
+        public void onClearFrames();
     }
 }
