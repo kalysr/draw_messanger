@@ -29,6 +29,7 @@ public class PaintView extends View {
     private Listener listener;
     int Starttime = 0;
     int EndTime = 0;
+    private static final float CIRCLE_SIZE = 3f;
 
 
     //region Constructors
@@ -54,7 +55,7 @@ public class PaintView extends View {
         mPaint.setColor(Color.BLACK);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setStrokeWidth(16f);
+        mPaint.setStrokeWidth(8f);
         mPaint.setAntiAlias(true);
     }
 
@@ -94,7 +95,7 @@ public class PaintView extends View {
                                     mPath.lineTo(frames.get(current_position).x1, frames.get(current_position).y1);
                                     break;
                                 case Frame.CIRCLE:
-                                    mPath.addCircle(frames.get(current_position).x1, frames.get(current_position).y1, 5f, Path.Direction.CW);
+                                    mPath.addCircle(frames.get(current_position).x1, frames.get(current_position).y1, CIRCLE_SIZE, Path.Direction.CW);
                                     break;
                                 case Frame.MOVE_TO:
                                     mPath.moveTo(frames.get(current_position).x1, frames.get(current_position).y1);
@@ -189,7 +190,7 @@ public class PaintView extends View {
             listener.onDraw(frame);
         }
         if (mStartY == mCurrY && mStartX == mCurrX) {
-            mPath.addCircle(mCurrX, mCurrY, 5f, Path.Direction.CW);
+            mPath.addCircle(mCurrX, mCurrY, CIRCLE_SIZE, Path.Direction.CW);
             Frame frame1 = new Frame(
                     mCurrX,
                     mCurrY,
@@ -270,7 +271,7 @@ public class PaintView extends View {
                                     mPath.lineTo(frame.x1, frame.y1);
                                     break;
                                 case Frame.CIRCLE:
-                                    mPath.addCircle(frame.x1, frame.y1, 5f, Path.Direction.CW);
+                                    mPath.addCircle(frame.x1, frame.y1, CIRCLE_SIZE, Path.Direction.CW);
                                     break;
                                 case Frame.MOVE_TO:
                                     mPath.moveTo(frame.x1, frame.y1);

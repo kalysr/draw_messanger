@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void init() {
+
         mDatabase = FirebaseDatabase.getInstance().getReference("frames");
         paintView = findViewById(R.id.main_paint_view);
         clearButton = findViewById(R.id.clear_canvas);
