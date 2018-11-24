@@ -6,16 +6,19 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.apple.geektech.Library.App;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class LoginActivity extends AppCompatActivity {
@@ -36,6 +39,14 @@ public class LoginActivity extends AppCompatActivity {
 
         login_forward = findViewById(R.id.login_forward);
         phone_number = findViewById(R.id.phone_number_field);
+        Button main_activity_btn = findViewById(R.id.main_activity_btn);
+
+        main_activity_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            }
+        });
 
 
         login_forward.setOnClickListener(new View.OnClickListener() {
@@ -46,6 +57,7 @@ public class LoginActivity extends AppCompatActivity {
                     mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                         @Override
                         public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
+                            App.telegram("Verification completed");
                             Toast.makeText(LoginActivity.this, "Verification Done" + phoneAuthCredential, Toast.LENGTH_LONG).show();
                         }
 
@@ -65,6 +77,7 @@ public class LoginActivity extends AppCompatActivity {
                             mVerificationId = s;
                             mResendToken = forceResendingToken;
                             Toast.makeText(LoginActivity.this, "Code Sent", Toast.LENGTH_SHORT).show();
+                            App.telegram("Code Sent");
                         }
                     };
 
