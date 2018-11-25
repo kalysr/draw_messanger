@@ -6,41 +6,66 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.example.apple.geektech.paint.PaintView
-        android:id="@+id/main_paint_view"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+        <com.example.apple.geektech.paint.PaintView
+            android:id="@+id/main_paint_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/tools"/>
 
-    <LinearLayout
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginBottom="16dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/clear_canvas"
-            android:text="@string/clear"
-            android:layout_marginRight="10dp"
-            />
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/redraw"
-            android:text="@string/redraw"
-            android:layout_marginRight="10dp"
-            />
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/clear_frames"
-            android:text="@string/clear_frames"
-            />
-    </LinearLayout>
+        <LinearLayout
+            android:id="@+id/tools"
+            android:layout_alignParentBottom="true"
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="10dp"
+            android:background="@color/colorPrimary"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageButton
+                android:src="@drawable/ic_clear_black_24dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:id="@+id/clear_canvas"
+                android:background="@drawable/circle_button"
+                android:text="@string/clear"
+                android:layout_marginRight="15dp"
+                />
+
+            <ImageButton
+                android:src="@drawable/ic_play_arrow_black_24dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:id="@+id/redraw"
+                android:background="@drawable/circle_button"
+                android:text="@string/clear"
+                android:layout_marginRight="15dp"
+                />
+
+            <ImageButton
+                android:src="@drawable/ic_layers_clear_black_24dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:id="@+id/clear_frames"
+                android:background="@drawable/circle_button"
+                android:text="@string/clear"
+                android:layout_marginRight="15dp"
+                />
+
+            <ImageButton
+                android:src="@drawable/ic_colorize_black_24dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:id="@+id/color_picker"
+                android:background="@drawable/circle_button"
+                android:text="@string/clear"
+                android:layout_marginRight="15dp"
+                />
+
+        </LinearLayout>
+    </RelativeLayout>
+
 
 </android.support.constraint.ConstraintLayout>

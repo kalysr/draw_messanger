@@ -6,7 +6,7 @@ import android.graphics.Path;
 
 import java.util.ArrayList;
 
-public class UserPath {
+public class UserPath implements ILayer{
     public static final String ACTION_CLEAR_CANVAS = "ACTION_CLEAR_CANVAS";
     public static final String ACTION_CLEAR_FRAMES = "ACTION_CLEAR_FRAMES";
     private final Paint mPaint = new Paint();
@@ -16,9 +16,44 @@ public class UserPath {
 
     private String id;
     private Listener listener;
-    private static final float CIRCLE_SIZE = 3f;
+    private float circleSize = 3f;
+    private float strokeWidth = 8f;
+    private int penColor = Color.BLACK;
     private PaintView paintView;
 
+
+    public float getCircleSize() {
+        return circleSize;
+    }
+
+    public float getStrokeWidth() {
+        return strokeWidth;
+    }
+
+    public int getPenColor() {
+        return penColor;
+    }
+
+    public void setCircleSize(float circleSize) {
+        this.circleSize = circleSize;
+        if(listener != null){
+            listener.onCircleSizeChanged(circleSize);
+        }
+    }
+
+    public void setStrokeWidth(float strokeWidth) {
+        this.strokeWidth = strokeWidth;
+        if(listener != null){
+            listener.onStrokeWidthChanged(strokeWidth);
+        }
+    }
+
+    public void setPenColor(int penColor) {
+        this.penColor = penColor;
+        if(listener != null){
+            listener.onColorChanged(penColor);
+        }
+    }
 
     public String getId() {
         return id;
@@ -31,10 +66,10 @@ public class UserPath {
     }
 
     private void init() {
-        mPaint.setColor(Color.BLACK);
+        mPaint.setColor(penColor);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setStrokeWidth(8f);
+        mPaint.setStrokeWidth(strokeWidth);
         mPaint.setAntiAlias(true);
     }
 
@@ -69,6 +104,19 @@ public class UserPath {
         paintView.invalidate();
     }
 
+    public void _clearCanvas() {
+        mPath.reset();
+        current_position = 0;
+        paintView.invalidate();
+    }
+
+    public void _clearFrames() {
+        frames = new ArrayList<>(0);
+        mPath.reset();
+        current_position = 0;
+        paintView.invalidate();
+    }
+
     public void redrawFrames() {
         current_position = 0;
         try {
@@ -90,7 +138,7 @@ public class UserPath {
                                     mPath.lineTo(frames.get(current_position).x1, frames.get(current_position).y1);
                                     break;
                                 case PaintView.Frame.CIRCLE:
-                                    mPath.addCircle(frames.get(current_position).x1, frames.get(current_position).y1, CIRCLE_SIZE, Path.Direction.CW);
+                                    mPath.addCircle(frames.get(current_position).x1, frames.get(current_position).y1, circleSize, Path.Direction.CW);
                                     break;
                                 case PaintView.Frame.MOVE_TO:
                                     mPath.moveTo(frames.get(current_position).x1, frames.get(current_position).y1);
@@ -128,7 +176,7 @@ public class UserPath {
                     mPath.lineTo(frame.x1, frame.y1);
                     break;
                 case PaintView.Frame.CIRCLE:
-                    mPath.addCircle(frame.x1, frame.y1, CIRCLE_SIZE, Path.Direction.CW);
+                    mPath.addCircle(frame.x1, frame.y1, circleSize, Path.Direction.CW);
                     break;
                 case PaintView.Frame.MOVE_TO:
                     mPath.moveTo(frame.x1, frame.y1);
@@ -155,7 +203,7 @@ public class UserPath {
                                     mPath.lineTo(frame.x1, frame.y1);
                                     break;
                                 case PaintView.Frame.CIRCLE:
-                                    mPath.addCircle(frame.x1, frame.y1, CIRCLE_SIZE, Path.Direction.CW);
+                                    mPath.addCircle(frame.x1, frame.y1, circleSize, Path.Direction.CW);
                                     break;
                                 case PaintView.Frame.MOVE_TO:
                                     mPath.moveTo(frame.x1, frame.y1);
@@ -183,5 +231,8 @@ public class UserPath {
         public void onAddFrame(PaintView.Frame frame);
         public void onClearCanvas();
         public void onClearFrames();
+        public void onColorChanged(int color);
+        public void onCircleSizeChanged(float circleSize);
+        public void onStrokeWidthChanged(float strokeWidth);
     }
 }

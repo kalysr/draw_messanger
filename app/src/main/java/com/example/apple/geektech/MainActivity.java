@@ -5,8 +5,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 
+import com.example.apple.geektech.paint.GridLayer;
 import com.example.apple.geektech.paint.PaintView;
 import com.example.apple.geektech.paint.UserPath;
 import com.google.firebase.database.ChildEventListener;
@@ -19,7 +20,7 @@ import com.google.firebase.database.ValueEventListener;
 public class MainActivity extends AppCompatActivity {
 
     PaintView paintView;
-    Button clearButton, redrawBtn, clearFramesBtn;
+    ImageButton clearButton,redrawBtn,clearFramesBtn,colorPickerBtn;
     String UserId = null;
     UserPath selfUserPath = null;
     public static String USER_ID = "USER_ID";
@@ -43,10 +44,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void init() {
+        getSupportActionBar().hide();
         paintView = findViewById(R.id.main_paint_view);
         clearButton = findViewById(R.id.clear_canvas);
         redrawBtn = findViewById(R.id.redraw);
         clearFramesBtn = findViewById(R.id.clear_frames);
+        colorPickerBtn = findViewById(R.id.color_picker);
     }
 
     private void initEvents() {
@@ -54,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         final DatabaseReference mDatabase = FirebaseHelper.getInstance().getDatabase();
 
         selfUserPath = new UserPath(UserId, paintView);
-        paintView.setSelfUser(selfUserPath);
+        paintView.setSelfLayer(selfUserPath);
         selfUserPath.setListener(new UserPath.Listener() {
             @Override
             public void onAddFrame(PaintView.Frame frame) {
@@ -73,15 +76,28 @@ public class MainActivity extends AppCompatActivity {
                 mDatabase.child("users").child(UserId).child("action").setValue(UserPath.ACTION_CLEAR_FRAMES);
                 mDatabase.child("users").child(UserId).child("action").setValue("");
             }
+
+            @Override
+            public void onColorChanged(int color) {
+                mDatabase.child("users").child(UserId).child("config").child("color").setValue(color);
+            }
+
+            @Override
+            public void onCircleSizeChanged(float circleSize) {
+                mDatabase.child("users").child(UserId).child("config").child("circle_size").setValue(circleSize);
+            }
+
+            @Override
+            public void onStrokeWidthChanged(float strokeWidth) {
+                mDatabase.child("users").child(UserId).child("config").child("stroke_width").setValue(strokeWidth);
+            }
         });
 
         FirebaseHelper.getInstance().getDatabase().child("users").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                System.out.println("key:"+dataSnapshot.getKey());
-                System.out.println("user_id:"+UserId);
-                if(!dataSnapshot.getKey().equals(UserId))
-                    addUserEvents(dataSnapshot.getKey());
+                if (!dataSnapshot.getKey().equals(UserId))
+                    addUserEvents(dataSnapshot.getKey(), dataSnapshot);
             }
 
             @Override
@@ -110,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 selfUserPath.clearCanvas();
+                paintView.clearAllUserCanvas();
             }
         });
 
@@ -124,22 +141,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 selfUserPath.clearFrames();
+                paintView.clearAllUserFrames();
             }
         });
 
-        clearFramesBtn.setOnClickListener(new View.OnClickListener() {
+        colorPickerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selfUserPath.clearFrames();
+                /*ColorPickerDialog.newBuilder()
+                        .setColor(Color.BLACK)
+                        .show(MainActivity.this);*/
             }
         });
     }
 
-    private void addUserEvents(final String userId) {
+    private void addUserEvents(final String userId, DataSnapshot dataSnapshot) {
         final DatabaseReference mDatabase = FirebaseHelper.getInstance().getDatabase();
 
         final UserPath userPath = new UserPath(userId, paintView);
-        paintView.addUser(userPath);
+        paintView.addLayer(userPath);
+        paintView.addLayer(new GridLayer("grid",paintView));
+
 
         mDatabase.child("users").child(userId).child("action").addValueEventListener(new ValueEventListener() {
             @Override
@@ -149,10 +171,12 @@ public class MainActivity extends AppCompatActivity {
                     String action = object.toString();
                     switch (action) {
                         case UserPath.ACTION_CLEAR_CANVAS:
-                            userPath.clearCanvas();
+                            userPath._clearCanvas();
+                            selfUserPath._clearCanvas();
                             break;
                         case UserPath.ACTION_CLEAR_FRAMES:
-                            userPath.clearFrames();
+                            userPath._clearFrames();
+                            selfUserPath._clearFrames();
                             break;
                     }
                 }
@@ -164,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        mDatabase.child("users").child(userId).child("data").setValue("");
         mDatabase.child("users").child(userId).child("data").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -173,6 +198,24 @@ public class MainActivity extends AppCompatActivity {
                     if (frame != null) {
                         userPath.drawFrame(frame);
                     }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        mDatabase.child("users").child(userId).child("config").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.child("color").getValue() != null &&
+                        dataSnapshot.child("circle_size").getValue() != null &&
+                        dataSnapshot.child("stroke_width").getValue() != null) {
+                    userPath.setPenColor((int) dataSnapshot.child("color").getValue());
+                    userPath.setCircleSize((float) dataSnapshot.child("circle_size").getValue());
+                    userPath.setStrokeWidth((float) dataSnapshot.child("stroke_width").getValue());
                 }
             }
 

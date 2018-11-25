@@ -2,27 +2,23 @@ package com.example.apple.geektech.paint;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Path;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class PaintView extends View {
 
-    public static final String ACTION_CLEAR_CANVAS = "ACTION_CLEAR_CANVAS";
-    public static final String ACTION_CLEAR_FRAMES = "ACTION_CLEAR_FRAMES";
     private float mCurrX = 0f;
     private float mCurrY = 0f;
     private float mStartX = 0f;
     private float mStartY = 0f;
-    private UserPath selfUser;
-    private Map<String,UserPath> users = new HashMap<>(0);
+    private ILayer selfLayer;
+    private Map<String,ILayer> users = new HashMap<>(0);
 
     //region Constructors
 
@@ -46,26 +42,30 @@ public class PaintView extends View {
     private void init() {
     }
 
-    public void setSelfUser(UserPath selfUser) {
-        this.selfUser = selfUser;
+    public void setSelfLayer(UserPath selfUser) {
+        this.selfLayer = selfUser;
     }
 
-    public void addUser(UserPath userPath){
-        users.put(userPath.getId(),userPath);
+    public void addLayer(ILayer layer){
+        users.put(layer.getId(),layer);
+        invalidate();
     }
 
-    public UserPath getSelfUser() {
-        return selfUser;
+    public ILayer getLayer(String key){
+        return users.get(key);
+    }
+
+    public ILayer getSelfLayer() {
+        return selfLayer;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawPath(selfUser.getPath(), selfUser.getPaint());
-        for(Map.Entry<String, UserPath> entry : users.entrySet()) {
-            //String id = entry.getKey();
-            UserPath userPath = entry.getValue();
-            canvas.drawPath(userPath.getPath(), userPath.getPaint());
+        canvas.drawPath(selfLayer.getPath(), selfLayer.getPaint());
+        for(Map.Entry<String, ILayer> entry : users.entrySet()) {
+            ILayer layer = entry.getValue();
+            canvas.drawPath(layer.getPath(), layer.getPaint());
         }
     }
 
@@ -94,7 +94,7 @@ public class PaintView extends View {
     }
 
     private void actionMove(float x, float y) {
-        selfUser.addFrame(new Frame(
+        selfLayer.addFrame(new Frame(
                 mCurrX,
                 mCurrY,
                 (x + mCurrX) / 2,
@@ -105,13 +105,13 @@ public class PaintView extends View {
     }
 
     private void actionUp() {
-        selfUser.addFrame(new Frame(
+        selfLayer.addFrame(new Frame(
                 mCurrX,
                 mCurrY,
                 Frame.LINE_TO
         ));
         if (mStartY == mCurrY && mStartX == mCurrX) {
-            selfUser.addFrame(new Frame(
+            selfLayer.addFrame(new Frame(
                     mCurrX,
                     mCurrY,
                     Frame.CIRCLE
@@ -120,9 +120,23 @@ public class PaintView extends View {
     }
 
     private void actionDown(float x, float y) {
-        selfUser.addFrame(new Frame(x, y, Frame.MOVE_TO));
+        selfLayer.addFrame(new Frame(x, y, Frame.MOVE_TO));
         mCurrX = x;
         mCurrY = y;
+    }
+
+    public void clearAllUserCanvas() {
+        for(Map.Entry<String, ILayer> entry : users.entrySet()) {
+            ILayer userPath = entry.getValue();
+            userPath._clearCanvas();
+        }
+    }
+
+    public void clearAllUserFrames() {
+        for(Map.Entry<String, ILayer> entry : users.entrySet()) {
+            ILayer userPath = entry.getValue();
+            userPath._clearFrames();
+        }
     }
 
     public static class Frame implements Serializable {
