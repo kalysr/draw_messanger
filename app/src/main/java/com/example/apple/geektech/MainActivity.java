@@ -20,10 +20,12 @@ import com.google.firebase.database.ValueEventListener;
 public class MainActivity extends AppCompatActivity {
 
     PaintView paintView;
-    ImageButton clearButton,redrawBtn,clearFramesBtn,colorPickerBtn;
+    ImageButton clearButton,redrawBtn,clearFramesBtn,colorPickerBtn, gridBtn;
     String UserId = null;
     UserPath selfUserPath = null;
     public static String USER_ID = "USER_ID";
+    boolean pressed = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         redrawBtn = findViewById(R.id.redraw);
         clearFramesBtn = findViewById(R.id.clear_frames);
         colorPickerBtn = findViewById(R.id.color_picker);
+        gridBtn = findViewById(R.id.gridBtn);
     }
 
     private void initEvents() {
@@ -118,6 +121,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
+            }
+        });
+
+
+
+        gridBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (pressed) {
+                    pressed= false;
+                    gridBtn.setImageResource(R.drawable.ic_grid_off_black_24dp);
+                }
+                else {
+                    pressed = true;
+                    gridBtn.setImageResource(R.drawable.ic_grid_on_black_24dp);
+                }
             }
         });
 

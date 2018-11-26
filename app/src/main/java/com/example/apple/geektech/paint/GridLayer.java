@@ -52,14 +52,19 @@ public class GridLayer implements ILayer{
     }
 
     private void drawGrid() {
-        mPath.moveTo(0,0);
-        mPath.lineTo(0,paintView.getHeight());
 
-        mPath.moveTo(50,0);
-        mPath.lineTo(50,paintView.getHeight());
+        for (int i = 120; i <= paintView.getWidth(); i+=120) {
+                mPath.moveTo(i,0);
+                mPath.lineTo(i,paintView.getHeight());
+            for (int j = 120; j <= paintView.getHeight() ; j+=120) {
 
-        mPath.moveTo(100,0);
-        mPath.lineTo(100,paintView.getHeight());
+                mPath.moveTo(0,j);
+                mPath.lineTo(paintView.getWidth(),j);
+            }
+//
+
+        }
+
     }
 
     private void init() {

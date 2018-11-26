@@ -4,4 +4,6 @@
     <string name="redraw">Redraw</string>
     <string name="clear_frames">Clear frames</string>
     <string name="phone_number">Phone number</string>
+    <string name="enter_phone_number">Enter Phone Number</string>
+    <string name="received_code">Received code</string>
 </resources>
