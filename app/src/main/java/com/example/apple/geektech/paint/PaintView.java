@@ -75,23 +75,6 @@ public class PaintView extends View {
     }
 
 
-    public void openColorPicker(){
-        AmbilWarnaDialog colorPicker = new AmbilWarnaDialog(getContext(), ((UserPath)selfLayer).getPenColor(), new AmbilWarnaDialog.OnAmbilWarnaListener() {
-            @Override
-            public void onCancel(AmbilWarnaDialog dialog) {
-
-            }
-
-            @Override
-            public void onOk(AmbilWarnaDialog dialog, int color) {
-                ((UserPath)selfLayer).setPenColor(color);
-                invalidate();
-            }
-        });
-        colorPicker.show();
-    }
-
-
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);

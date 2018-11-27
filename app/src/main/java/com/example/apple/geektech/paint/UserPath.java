@@ -36,6 +36,7 @@ public class UserPath implements ILayer{
 
     public void setCircleSize(float circleSize) {
         this.circleSize = circleSize;
+        paintView.invalidate();
         if(listener != null){
             listener.onCircleSizeChanged(circleSize);
         }
@@ -44,6 +45,7 @@ public class UserPath implements ILayer{
     public void setStrokeWidth(float strokeWidth) {
         this.strokeWidth = strokeWidth;
         mPaint.setStrokeWidth(strokeWidth);
+        paintView.invalidate();
         if(listener != null){
             listener.onStrokeWidthChanged(strokeWidth);
         }
@@ -52,6 +54,7 @@ public class UserPath implements ILayer{
     public void setPenColor(int penColor) {
         this.penColor = penColor;
         mPaint.setColor(penColor);
+        paintView.invalidate();
         if(listener != null){
             listener.onColorChanged(penColor);
         }

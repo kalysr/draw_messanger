@@ -1,6 +1,5 @@
 package com.example.apple.geektech;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -185,9 +184,24 @@ public class MainActivity extends AppCompatActivity {
         colorPickerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                opeColorPicker();
+                openColorPicker();
             }
         });
+    }
+
+    public void openColorPicker(){
+        AmbilWarnaDialog colorPicker = new AmbilWarnaDialog(this, selfUserPath.getPenColor(), new AmbilWarnaDialog.OnAmbilWarnaListener() {
+            @Override
+            public void onCancel(AmbilWarnaDialog dialog) {
+
+            }
+
+            @Override
+            public void onOk(AmbilWarnaDialog dialog, int color) {
+                selfUserPath.setPenColor(color);
+            }
+        });
+        colorPicker.show();
     }
 
     private void addUserEvents(final String userId, DataSnapshot dataSnapshot) {
