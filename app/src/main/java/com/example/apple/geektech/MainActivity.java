@@ -1,6 +1,8 @@
 package com.example.apple.geektech;
 
 import android.content.Intent;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.OvalShape;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -23,7 +25,7 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 public class MainActivity extends AppCompatActivity {
 
     PaintView paintView;
-    ImageButton clearButton,redrawBtn,clearFramesBtn,colorPickerBtn, gridBtn,contactBtn;
+    ImageButton clearButton,redrawBtn, undoButton,colorPickerBtn, gridBtn,contactBtn;
     String UserId = null;
     UserPath selfUserPath = null;
     public static String USER_ID = "USER_ID";
@@ -54,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         paintView = findViewById(R.id.main_paint_view);
         clearButton = findViewById(R.id.clear_canvas);
         redrawBtn = findViewById(R.id.redraw);
-        clearFramesBtn = findViewById(R.id.clear_frames);
+        undoButton = findViewById(R.id.undo_button);
         colorPickerBtn = findViewById(R.id.color_picker);
         gridBtn = findViewById(R.id.gridBtn);
         contactBtn = findViewById(R.id.contactBtn);
@@ -98,6 +100,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onStrokeWidthChanged(float strokeWidth) {
                 mDatabase.child("users").child(UserId).child("config").child("stroke_width").setValue(strokeWidth);
+            }
+
+            @Override
+            public void onUndo() {
+                mDatabase.child("users").child(UserId).child("action").setValue(UserPath.ACTION_UNDO);
+                mDatabase.child("users").child(UserId).child("action").setValue("");
             }
         });
 
@@ -162,6 +170,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 selfUserPath.clearCanvas();
+                selfUserPath.clearFrames();
                 paintView.clearAllUserCanvas();
             }
         });
@@ -173,11 +182,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        clearFramesBtn.setOnClickListener(new View.OnClickListener() {
+        undoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selfUserPath.clearFrames();
-                paintView.clearAllUserFrames();
+                selfUserPath.undo();
             }
         });
 
@@ -199,6 +207,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onOk(AmbilWarnaDialog dialog, int color) {
                 selfUserPath.setPenColor(color);
+                ShapeDrawable footerBackground = new ShapeDrawable();
+                footerBackground.setShape(new OvalShape());
+                footerBackground.getPaint().setColor(color);
+                colorPickerBtn.setBackgroundDrawable(footerBackground);
             }
         });
         colorPicker.show();
@@ -225,6 +237,9 @@ public class MainActivity extends AppCompatActivity {
                         case UserPath.ACTION_CLEAR_FRAMES:
                             userPath._clearFrames();
                             selfUserPath._clearFrames();
+                            break;
+                        case UserPath.ACTION_UNDO:
+                            userPath.undo();
                             break;
                     }
                 }

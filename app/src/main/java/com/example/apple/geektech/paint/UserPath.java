@@ -6,11 +6,13 @@ import android.graphics.Path;
 
 import java.util.ArrayList;
 
-public class UserPath implements ILayer{
+public class UserPath implements ILayer {
     public static final String ACTION_CLEAR_CANVAS = "ACTION_CLEAR_CANVAS";
     public static final String ACTION_CLEAR_FRAMES = "ACTION_CLEAR_FRAMES";
+    public static final String ACTION_UNDO = "ACTION_UNDO";
     private final Paint mPaint = new Paint();
-    private final Path mPath = new Path();
+    private Path mPath = new Path();
+    private ArrayList<Path> paths = new ArrayList<>(0);
     private ArrayList<PaintView.Frame> frames = new ArrayList<>(0);
     private int current_position = 0;
 
@@ -37,7 +39,7 @@ public class UserPath implements ILayer{
     public void setCircleSize(float circleSize) {
         this.circleSize = circleSize;
         paintView.invalidate();
-        if(listener != null){
+        if (listener != null) {
             listener.onCircleSizeChanged(circleSize);
         }
     }
@@ -46,7 +48,7 @@ public class UserPath implements ILayer{
         this.strokeWidth = strokeWidth;
         mPaint.setStrokeWidth(strokeWidth);
         paintView.invalidate();
-        if(listener != null){
+        if (listener != null) {
             listener.onStrokeWidthChanged(strokeWidth);
         }
     }
@@ -55,7 +57,7 @@ public class UserPath implements ILayer{
         this.penColor = penColor;
         mPaint.setColor(penColor);
         paintView.invalidate();
-        if(listener != null){
+        if (listener != null) {
             listener.onColorChanged(penColor);
         }
     }
@@ -76,10 +78,7 @@ public class UserPath implements ILayer{
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(strokeWidth);
         mPaint.setAntiAlias(true);
-    }
-
-    public Path getPath() {
-        return mPath;
+        paths.add(mPath);
     }
 
     public Paint getPaint() {
@@ -91,26 +90,23 @@ public class UserPath implements ILayer{
     }
 
     public void clearCanvas() {
-        mPath.reset();
-        current_position = 0;
-        if(listener != null){
+        if (listener != null) {
             listener.onClearCanvas();
         }
-        paintView.invalidate();
+        _clearCanvas();
     }
 
     public void clearFrames() {
-        frames = new ArrayList<>(0);
-        mPath.reset();
-        current_position = 0;
-        if(listener != null){
+        if (listener != null) {
             listener.onClearFrames();
         }
-        paintView.invalidate();
+        _clearFrames();
     }
 
     public void _clearCanvas() {
         mPath.reset();
+        paths = new ArrayList<>(0);
+        paths.add(mPath);
         current_position = 0;
         paintView.invalidate();
     }
@@ -118,6 +114,8 @@ public class UserPath implements ILayer{
     public void _clearFrames() {
         frames = new ArrayList<>(0);
         mPath.reset();
+        paths = new ArrayList<>(0);
+        paths.add(mPath);
         current_position = 0;
         paintView.invalidate();
     }
@@ -129,6 +127,22 @@ public class UserPath implements ILayer{
             _redrawFrames();
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void undo() {
+        if (paths.size() > 0) {
+            paths.remove(paths.size() - 1);
+            if (paths.size() > 0) {
+                mPath = paths.get(paths.size() - 1);
+            } else {
+                _clearCanvas();
+            }
+        }
+        mPath.reset();
+        paintView.invalidate();
+        if (listener != null) {
+            listener.onUndo();
         }
     }
 
@@ -170,8 +184,8 @@ public class UserPath implements ILayer{
                 }, 10);
     }
 
-    public void addFrame(final PaintView.Frame frame){
-        if(listener != null){
+    public void addFrame(final PaintView.Frame frame) {
+        if (listener != null) {
             listener.onAddFrame(frame);
         }
         frames.add(frame);
@@ -179,6 +193,8 @@ public class UserPath implements ILayer{
             switch (frame.type) {
                 case PaintView.Frame.LINE_TO:
                     mPath.lineTo(frame.x1, frame.y1);
+                    mPath = new Path();
+                    paths.add(mPath);
                     break;
                 case PaintView.Frame.CIRCLE:
                     mPath.addCircle(frame.x1, frame.y1, circleSize, Path.Direction.CW);
@@ -197,34 +213,19 @@ public class UserPath implements ILayer{
         }
     }
 
+    @Override
+    public ArrayList<Path> getPaths() {
+        return paths;
+    }
+
     public void drawFrame(final PaintView.Frame frame) {
-        frames.add(frame);
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
-                        if (frame != null) {
-                            switch (frame.type) {
-                                case PaintView.Frame.LINE_TO:
-                                    mPath.lineTo(frame.x1, frame.y1);
-                                    break;
-                                case PaintView.Frame.CIRCLE:
-                                    mPath.addCircle(frame.x1, frame.y1, circleSize, Path.Direction.CW);
-                                    break;
-                                case PaintView.Frame.MOVE_TO:
-                                    mPath.moveTo(frame.x1, frame.y1);
-                                    break;
-                                default:
-                                    mPath.quadTo(
-                                            frame.x1,
-                                            frame.y1,
-                                            frame.x2,
-                                            frame.y2
-                                    );
-                            }
-                            paintView.invalidate();
-                        }
+                        addFrame(frame);
+                        paintView.invalidate();
                     }
-                },0);
+                }, 0);
     }
 
     public UserPath setListener(Listener listener) {
@@ -234,10 +235,17 @@ public class UserPath implements ILayer{
 
     public static interface Listener {
         public void onAddFrame(PaintView.Frame frame);
+
         public void onClearCanvas();
+
         public void onClearFrames();
+
         public void onColorChanged(int color);
+
         public void onCircleSizeChanged(float circleSize);
+
         public void onStrokeWidthChanged(float strokeWidth);
+
+        public void onUndo();
     }
 }

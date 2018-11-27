@@ -2,17 +2,17 @@ package com.example.apple.geektech.paint;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.os.Build;
+import android.graphics.Path;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class PaintView extends View {
 
@@ -78,10 +78,14 @@ public class PaintView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawPath(selfLayer.getPath(), selfLayer.getPaint());
         for(Map.Entry<String, ILayer> entry : users.entrySet()) {
             ILayer layer = entry.getValue();
-            canvas.drawPath(layer.getPath(), layer.getPaint());
+            for(Path path : layer.getPaths()) {
+                canvas.drawPath(path, layer.getPaint());
+            }
+        }
+        for(Path path : selfLayer.getPaths()) {
+            canvas.drawPath(path, selfLayer.getPaint());
         }
     }
 
