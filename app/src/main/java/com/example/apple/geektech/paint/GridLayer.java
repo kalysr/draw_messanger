@@ -3,10 +3,6 @@ package com.example.apple.geektech.paint;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.example.apple.geektech.MainActivity;
 
 import java.util.ArrayList;
 
@@ -19,10 +15,6 @@ public class GridLayer implements ILayer{
     private float strokeWidth = 4f;
     public int penColor = Color.GRAY;
     private PaintView paintView;
-
-    public GridLayer() {
-
-    }
 
 
     @Override
