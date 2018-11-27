@@ -137,6 +137,27 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        mDatabase.child("users").child(UserId).child("config").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.child("color").getValue() != null) {
+                    int color = Integer.valueOf(dataSnapshot.child("color").getValue().toString());
+                    selfUserPath.setPenColor(color);
+                    changeButtonColor(color);
+                }
+                if(dataSnapshot.child("circle_size").getValue() != null) {
+                    selfUserPath.setCircleSize((float) dataSnapshot.child("circle_size").getValue());
+                }
+                if(dataSnapshot.child("stroke_width").getValue() != null) {
+                    selfUserPath.setStrokeWidth((float) dataSnapshot.child("stroke_width").getValue());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
 
         gridBtn.setOnClickListener(new View.OnClickListener() {
@@ -207,13 +228,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onOk(AmbilWarnaDialog dialog, int color) {
                 selfUserPath.setPenColor(color);
-                ShapeDrawable footerBackground = new ShapeDrawable();
-                footerBackground.setShape(new OvalShape());
-                footerBackground.getPaint().setColor(color);
-                colorPickerBtn.setBackgroundDrawable(footerBackground);
+                changeButtonColor(color);
             }
         });
         colorPicker.show();
+    }
+
+    public void changeButtonColor(int color){
+        ShapeDrawable footerBackground = new ShapeDrawable();
+        footerBackground.setShape(new OvalShape());
+        footerBackground.getPaint().setColor(color);
+        colorPickerBtn.setBackgroundDrawable(footerBackground);
     }
 
     private void addUserEvents(final String userId, DataSnapshot dataSnapshot) {
