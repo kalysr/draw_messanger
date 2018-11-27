@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
         colorPickerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                paintView.openColorPicker();
+//                opeColorPicker();
             }
         });
     }

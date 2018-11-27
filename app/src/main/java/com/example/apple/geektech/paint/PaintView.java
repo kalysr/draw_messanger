@@ -8,6 +8,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.example.apple.geektech.MainActivity;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -77,7 +79,8 @@ public class PaintView extends View {
 
 
     public void openColorPicker(){
-        AmbilWarnaDialog colorPicker = new AmbilWarnaDialog(getContext(), gLayer.penColor, new AmbilWarnaDialog.OnAmbilWarnaListener() {
+
+        AmbilWarnaDialog colorPicker = new AmbilWarnaDialog(getContext(), 55 , new AmbilWarnaDialog.OnAmbilWarnaListener() {
             @Override
             public void onCancel(AmbilWarnaDialog dialog) {
 
@@ -88,8 +91,8 @@ public class PaintView extends View {
                 gLayer.penColor = color;
             }
         });
+
         colorPicker.show();
-        invalidate();
 
 
     }

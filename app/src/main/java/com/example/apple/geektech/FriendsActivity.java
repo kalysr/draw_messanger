@@ -26,10 +26,10 @@ public class FriendsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
 
+        getPermissions();
         userList = new ArrayList<>();
         initializerRecycleView();
         getContactList();
-        getPermissions();
     }
 
 
