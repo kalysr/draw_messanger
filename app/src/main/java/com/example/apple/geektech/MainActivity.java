@@ -25,7 +25,7 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 public class MainActivity extends AppCompatActivity {
 
     PaintView paintView;
-    ImageButton clearButton,redrawBtn, undoButton,colorPickerBtn, gridBtn,contactBtn;
+    ImageButton clearButton, redrawBtn, undoButton, colorPickerBtn, gridBtn, contactBtn;
     String UserId = null;
     UserPath selfUserPath = null;
     public static String USER_ID = "USER_ID";
@@ -140,15 +140,15 @@ public class MainActivity extends AppCompatActivity {
         mDatabase.child("users").child(UserId).child("config").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.child("color").getValue() != null) {
+                if (dataSnapshot.child("color").getValue() != null && !dataSnapshot.child("color").getValue().equals("")) {
                     int color = Integer.valueOf(dataSnapshot.child("color").getValue().toString());
                     selfUserPath.setPenColor(color);
                     changeButtonColor(color);
                 }
-                if(dataSnapshot.child("circle_size").getValue() != null) {
+                if (dataSnapshot.child("circle_size").getValue() != null && !dataSnapshot.child("circle_size").getValue().equals("")) {
                     selfUserPath.setCircleSize((float) dataSnapshot.child("circle_size").getValue());
                 }
-                if(dataSnapshot.child("stroke_width").getValue() != null) {
+                if (dataSnapshot.child("stroke_width").getValue() != null && !dataSnapshot.child("stroke_width").getValue().equals("")) {
                     selfUserPath.setStrokeWidth((float) dataSnapshot.child("stroke_width").getValue());
                 }
             }
@@ -165,12 +165,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 if (pressed) {
-                    pressed= false;
+                    pressed = false;
                     gridBtn.setImageResource(R.drawable.ic_grid_off_black_24dp);
-                    paintView.addLayer(new GridLayer("grid",paintView));
+                    paintView.addLayer(new GridLayer("grid", paintView));
 
-                }
-                else {
+                } else {
                     pressed = true;
                     gridBtn.setImageResource(R.drawable.ic_grid_on_black_24dp);
                     paintView.removeLayer(paintView.getLayer("grid"));
@@ -183,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         contactBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,FriendsActivity.class));
+                startActivity(new Intent(MainActivity.this, FriendsActivity.class));
             }
         });
 
@@ -218,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void openColorPicker(){
+    public void openColorPicker() {
         AmbilWarnaDialog colorPicker = new AmbilWarnaDialog(this, selfUserPath.getPenColor(), new AmbilWarnaDialog.OnAmbilWarnaListener() {
             @Override
             public void onCancel(AmbilWarnaDialog dialog) {
@@ -234,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
         colorPicker.show();
     }
 
-    public void changeButtonColor(int color){
+    public void changeButtonColor(int color) {
         ShapeDrawable footerBackground = new ShapeDrawable();
         footerBackground.setShape(new OvalShape());
         footerBackground.getPaint().setColor(color);
@@ -298,13 +297,13 @@ public class MainActivity extends AppCompatActivity {
         mDatabase.child("users").child(userId).child("config").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.child("color").getValue() != null) {
+                if (dataSnapshot.child("color").getValue() != null && !dataSnapshot.child("color").getValue().equals("")) {
                     userPath.setPenColor(Integer.valueOf(dataSnapshot.child("color").getValue().toString()));
                 }
-                if(dataSnapshot.child("circle_size").getValue() != null) {
+                if (dataSnapshot.child("circle_size").getValue() != null && !dataSnapshot.child("circle_size").getValue().equals("")) {
                     userPath.setCircleSize((float) dataSnapshot.child("circle_size").getValue());
                 }
-                if(dataSnapshot.child("stroke_width").getValue() != null) {
+                if (dataSnapshot.child("stroke_width").getValue() != null && !dataSnapshot.child("stroke_width").getValue().equals("")) {
                     userPath.setStrokeWidth((float) dataSnapshot.child("stroke_width").getValue());
                 }
             }
