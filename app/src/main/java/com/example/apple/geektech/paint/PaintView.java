@@ -12,6 +12,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import yuku.ambilwarna.AmbilWarnaDialog;
+
 public class PaintView extends View {
 
     private float mCurrX = 0f;
@@ -20,6 +22,7 @@ public class PaintView extends View {
     private float mStartY = 0f;
     private ILayer selfLayer;
     private Map<String,ILayer> users = new HashMap<>(0);
+    private GridLayer gLayer = new GridLayer();
 
     //region Constructors
 
@@ -71,6 +74,26 @@ public class PaintView extends View {
     public ILayer getSelfLayer() {
         return selfLayer;
     }
+
+
+    public void openColorPicker(){
+        AmbilWarnaDialog colorPicker = new AmbilWarnaDialog(getContext(), gLayer.penColor, new AmbilWarnaDialog.OnAmbilWarnaListener() {
+            @Override
+            public void onCancel(AmbilWarnaDialog dialog) {
+
+            }
+
+            @Override
+            public void onOk(AmbilWarnaDialog dialog, int color) {
+                gLayer.penColor = color;
+            }
+        });
+        colorPicker.show();
+        invalidate();
+
+
+    }
+
 
     @Override
     protected void onDraw(Canvas canvas) {

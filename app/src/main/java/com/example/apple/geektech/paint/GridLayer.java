@@ -11,12 +11,16 @@ import com.example.apple.geektech.MainActivity;
 import java.util.ArrayList;
 
 public class GridLayer implements ILayer{
-    private final Paint mPaint = new Paint();
+    public final Paint mPaint = new Paint();
     private final Path mPath = new Path();
     private String id;
     private float strokeWidth = 4f;
-    private int penColor = Color.GRAY;
+    public int penColor = Color.GRAY;
     private PaintView paintView;
+
+    public GridLayer() {
+
+    }
 
 
     @Override
@@ -53,7 +57,6 @@ public class GridLayer implements ILayer{
         this.paintView = paintView;
         init();
         drawGrid();
-        Log.e("TAG", "drawGrid: ");
 
     }
 

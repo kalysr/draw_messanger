@@ -18,6 +18,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
+import yuku.ambilwarna.AmbilWarnaDialog;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -134,14 +136,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-//                paintView.removeLayer(new GridLayer("grid",paintView));
-
-
                 if (pressed) {
                     pressed= false;
                     gridBtn.setImageResource(R.drawable.ic_grid_off_black_24dp);
                     paintView.addLayer(new GridLayer("grid",paintView));
-
 
                 }
                 else {
@@ -187,9 +185,7 @@ public class MainActivity extends AppCompatActivity {
         colorPickerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*ColorPickerDialog.newBuilder()
-                        .setColor(Color.BLACK)
-                        .show(MainActivity.this);*/
+                paintView.openColorPicker();
             }
         });
     }
