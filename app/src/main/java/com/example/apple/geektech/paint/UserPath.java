@@ -43,6 +43,7 @@ public class UserPath implements ILayer{
 
     public void setStrokeWidth(float strokeWidth) {
         this.strokeWidth = strokeWidth;
+        mPaint.setStrokeWidth(strokeWidth);
         if(listener != null){
             listener.onStrokeWidthChanged(strokeWidth);
         }
@@ -50,6 +51,7 @@ public class UserPath implements ILayer{
 
     public void setPenColor(int penColor) {
         this.penColor = penColor;
+        mPaint.setColor(penColor);
         if(listener != null){
             listener.onColorChanged(penColor);
         }

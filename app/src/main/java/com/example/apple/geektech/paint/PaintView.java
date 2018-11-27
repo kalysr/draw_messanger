@@ -8,8 +8,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.example.apple.geektech.MainActivity;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +22,6 @@ public class PaintView extends View {
     private float mStartY = 0f;
     private ILayer selfLayer;
     private Map<String,ILayer> users = new HashMap<>(0);
-    private GridLayer gLayer = new GridLayer();
 
     //region Constructors
 
@@ -79,8 +76,7 @@ public class PaintView extends View {
 
 
     public void openColorPicker(){
-
-        AmbilWarnaDialog colorPicker = new AmbilWarnaDialog(getContext(), 55 , new AmbilWarnaDialog.OnAmbilWarnaListener() {
+        AmbilWarnaDialog colorPicker = new AmbilWarnaDialog(getContext(), ((UserPath)selfLayer).getPenColor(), new AmbilWarnaDialog.OnAmbilWarnaListener() {
             @Override
             public void onCancel(AmbilWarnaDialog dialog) {
 
@@ -88,13 +84,11 @@ public class PaintView extends View {
 
             @Override
             public void onOk(AmbilWarnaDialog dialog, int color) {
-                gLayer.penColor = color;
+                ((UserPath)selfLayer).setPenColor(color);
+                invalidate();
             }
         });
-
         colorPicker.show();
-
-
     }
 
 
