@@ -134,13 +134,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+//                paintView.removeLayer(new GridLayer("grid",paintView));
+
+
                 if (pressed) {
                     pressed= false;
                     gridBtn.setImageResource(R.drawable.ic_grid_off_black_24dp);
+                    paintView.addLayer(new GridLayer("grid",paintView));
+
+
                 }
                 else {
                     pressed = true;
                     gridBtn.setImageResource(R.drawable.ic_grid_on_black_24dp);
+                    paintView.removeLayer(paintView.getLayer("grid"));
+
                 }
             }
         });
@@ -191,7 +199,6 @@ public class MainActivity extends AppCompatActivity {
 
         final UserPath userPath = new UserPath(userId, paintView);
         paintView.addLayer(userPath);
-        paintView.addLayer(new GridLayer("grid",paintView));
 
 
         mDatabase.child("users").child(userId).child("action").addValueEventListener(new ValueEventListener() {

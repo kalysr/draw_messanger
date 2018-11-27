@@ -2,6 +2,7 @@ package com.example.apple.geektech.paint;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -49,6 +50,18 @@ public class PaintView extends View {
     public void addLayer(ILayer layer){
         users.put(layer.getId(),layer);
         invalidate();
+    }
+
+    public void removeLayer(ILayer layer){
+
+        try {
+            users.remove(layer.getId());
+        } catch (NullPointerException e){
+
+        }
+
+        invalidate();
+
     }
 
     public ILayer getLayer(String key){
