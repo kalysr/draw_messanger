@@ -258,11 +258,13 @@ public class MainActivity extends AppCompatActivity {
         mDatabase.child("users").child(userId).child("config").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.child("color").getValue() != null &&
-                        dataSnapshot.child("circle_size").getValue() != null &&
-                        dataSnapshot.child("stroke_width").getValue() != null) {
+                if(dataSnapshot.child("color").getValue() != null) {
                     userPath.setPenColor((int) dataSnapshot.child("color").getValue());
+                }
+                if(dataSnapshot.child("circle_size").getValue() != null) {
                     userPath.setCircleSize((float) dataSnapshot.child("circle_size").getValue());
+                }
+                if(dataSnapshot.child("stroke_width").getValue() != null) {
                     userPath.setStrokeWidth((float) dataSnapshot.child("stroke_width").getValue());
                 }
             }
