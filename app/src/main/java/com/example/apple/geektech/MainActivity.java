@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onColorChanged(int color) {
-                mDatabase.child("users").child(UserId).child("config").child("color").setValue(color);
+                mDatabase.child("users").child(UserId).child("config").child("color").setValue(String.valueOf(color));
             }
 
             @Override
@@ -259,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.child("color").getValue() != null) {
-                    userPath.setPenColor((int) dataSnapshot.child("color").getValue());
+                    userPath.setPenColor(Integer.valueOf(dataSnapshot.child("color").getValue().toString()));
                 }
                 if(dataSnapshot.child("circle_size").getValue() != null) {
                     userPath.setCircleSize((float) dataSnapshot.child("circle_size").getValue());
