@@ -175,9 +175,8 @@ public class PaintView extends View {
 
         @Override
         public String toString() {
-            String value = "x1 : " + x1 + "\ny1 : " + y1 + "\nx2 : " + x2
+            return "x1 : " + x1 + "\ny1 : " + y1 + "\nx2 : " + x2
                     + "\ny2 : " + y2 + "\ntype : " + type;
-            return value;
         }
 
     }

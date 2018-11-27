@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.apple.geektech">
 
-    <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
-    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -21,8 +21,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
-        <activity android:name=".SignInActivity"></activity>
-        <activity android:name=".FriendsActivity"></activity>
+        <activity android:name=".SignInActivity" />
+        <activity android:name=".FriendsActivity" />
+        <activity
+            android:name=".HistoryActivity"
+            android:label="@string/title_activity_history"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
