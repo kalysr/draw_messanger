@@ -3,6 +3,10 @@ package com.example.apple.geektech.paint;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.example.apple.geektech.MainActivity;
 
 import java.util.ArrayList;
 
@@ -49,14 +53,16 @@ public class GridLayer implements ILayer{
         this.paintView = paintView;
         init();
         drawGrid();
+        Log.e("TAG", "drawGrid: ");
+
     }
 
     private void drawGrid() {
 
-        for (int i = 120; i <= paintView.getWidth(); i+=120) {
+        for (int i = 150; i <= paintView.getWidth(); i+=150) {
                 mPath.moveTo(i,0);
                 mPath.lineTo(i,paintView.getHeight());
-            for (int j = 120; j <= paintView.getHeight() ; j+=120) {
+            for (int j = 150; j <= paintView.getHeight() ; j+=150) {
 
                 mPath.moveTo(0,j);
                 mPath.lineTo(paintView.getWidth(),j);

@@ -1,5 +1,7 @@
 package com.example.apple.geektech;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -20,7 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 public class MainActivity extends AppCompatActivity {
 
     PaintView paintView;
-    ImageButton clearButton,redrawBtn,clearFramesBtn,colorPickerBtn, gridBtn;
+    ImageButton clearButton,redrawBtn,clearFramesBtn,colorPickerBtn, gridBtn,contactBtn;
     String UserId = null;
     UserPath selfUserPath = null;
     public static String USER_ID = "USER_ID";
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     private void init() {
         getSupportActionBar().hide();
         paintView = findViewById(R.id.main_paint_view);
@@ -53,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         clearFramesBtn = findViewById(R.id.clear_frames);
         colorPickerBtn = findViewById(R.id.color_picker);
         gridBtn = findViewById(R.id.gridBtn);
+        contactBtn = findViewById(R.id.contactBtn);
     }
 
     private void initEvents() {
@@ -141,6 +145,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        contactBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this,FriendsActivity.class));
+            }
+        });
 
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
