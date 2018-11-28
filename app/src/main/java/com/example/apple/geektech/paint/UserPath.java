@@ -72,6 +72,13 @@ public class UserPath implements ILayer {
         init();
     }
 
+
+    public void unDo(){
+
+    }
+
+
+
     private void init() {
         mPaint.setColor(penColor);
         mPaint.setStyle(Paint.Style.STROKE);

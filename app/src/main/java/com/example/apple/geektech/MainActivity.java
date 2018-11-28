@@ -25,7 +25,8 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 public class MainActivity extends AppCompatActivity {
 
     PaintView paintView;
-    ImageButton clearButton, redrawBtn, undoButton, colorPickerBtn, gridBtn, contactBtn;
+    ImageButton clearButton, redrawBtn, undoButton, colorPickerBtn
+            ,gridBtn, contactBtn,historyBtn,onlineContactsBtn;
     String UserId = null;
     UserPath selfUserPath = null;
     public static String USER_ID = "USER_ID";
@@ -60,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
         colorPickerBtn = findViewById(R.id.color_picker);
         gridBtn = findViewById(R.id.gridBtn);
         contactBtn = findViewById(R.id.contactBtn);
+        onlineContactsBtn = findViewById(R.id.onlineContactsBtn);
+        historyBtn = findViewById(R.id.historyBtn);
     }
 
     private void initEvents() {
@@ -186,6 +189,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        onlineContactsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this,OnlineContactsActivity.class));
+            }
+        });
+
+
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -215,6 +227,13 @@ public class MainActivity extends AppCompatActivity {
                 openColorPicker();
             }
         });
+
+        historyBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this,HistoryActivity.class));
+            }
+        });
     }
 
     public void openColorPicker() {
@@ -232,6 +251,10 @@ public class MainActivity extends AppCompatActivity {
         });
         colorPicker.show();
     }
+
+
+
+
 
     public void changeButtonColor(int color) {
         ShapeDrawable footerBackground = new ShapeDrawable();

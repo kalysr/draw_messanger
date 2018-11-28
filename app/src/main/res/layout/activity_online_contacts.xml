@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@drawable/contacts_bg"
-    android:layout_height="wrap_content"
-    android:paddingLeft="16dp"
-    tools:context=".FriendsActivity">
+    android:layout_height="match_parent"
+    style="@style/AppTheme.PopMe"
+    android:background="@drawable/gradient"
+    tools:context=".OnlineContactsActivity">
 
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/userlistRV"
+        android:id="@+id/onlineUserListRV"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical"/>
-</RelativeLayout>
+</android.support.constraint.ConstraintLayout>
