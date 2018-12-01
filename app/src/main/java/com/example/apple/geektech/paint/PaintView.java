@@ -80,12 +80,12 @@ public class PaintView extends View {
         super.onDraw(canvas);
         for(Map.Entry<String, ILayer> entry : users.entrySet()) {
             ILayer layer = entry.getValue();
-            for(Path path : layer.getPaths()) {
-                canvas.drawPath(path, layer.getPaint());
+            for(ILine line : layer.getLines()) {
+                canvas.drawPath(line.getPath(), line.getPaint());
             }
         }
-        for(Path path : selfLayer.getPaths()) {
-            canvas.drawPath(path, selfLayer.getPaint());
+        for(ILine line : selfLayer.getLines()) {
+            canvas.drawPath(line.getPath(), line.getPaint());
         }
     }
 

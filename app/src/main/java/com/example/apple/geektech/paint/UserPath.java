@@ -10,9 +10,9 @@ public class UserPath implements ILayer {
     public static final String ACTION_CLEAR_CANVAS = "ACTION_CLEAR_CANVAS";
     public static final String ACTION_CLEAR_FRAMES = "ACTION_CLEAR_FRAMES";
     public static final String ACTION_UNDO = "ACTION_UNDO";
-    private final Paint mPaint = new Paint();
-    private Path mPath = new Path();
-    private ArrayList<Path> paths = new ArrayList<>(0);
+    private Line mLine;
+
+    private ArrayList<Line> lines = new ArrayList<>(0);
     private ArrayList<PaintView.Frame> frames = new ArrayList<>(0);
     private int current_position = 0;
 
@@ -22,6 +22,7 @@ public class UserPath implements ILayer {
     private float strokeWidth = 8f;
     private int penColor = Color.BLACK;
     private PaintView paintView;
+
 
 
     public float getCircleSize() {
@@ -46,7 +47,7 @@ public class UserPath implements ILayer {
 
     public void setStrokeWidth(float strokeWidth) {
         this.strokeWidth = strokeWidth;
-        mPaint.setStrokeWidth(strokeWidth);
+        mLine.getPaint().setStrokeWidth(strokeWidth);
         paintView.invalidate();
         if (listener != null) {
             listener.onStrokeWidthChanged(strokeWidth);
@@ -55,7 +56,7 @@ public class UserPath implements ILayer {
 
     public void setPenColor(int penColor) {
         this.penColor = penColor;
-        mPaint.setColor(penColor);
+        mLine.getPaint().setColor(penColor);
         paintView.invalidate();
         if (listener != null) {
             listener.onColorChanged(penColor);
@@ -80,15 +81,19 @@ public class UserPath implements ILayer {
 
 
     private void init() {
+        Path mPath = new Path();
+        mLine = new Line(mPath,getClonePaint());
+        lines.add(mLine);
+
+    }
+
+    private Paint getClonePaint() {
+        Paint mPaint = new Paint();
         mPaint.setColor(penColor);
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
         mPaint.setStrokeWidth(strokeWidth);
         mPaint.setAntiAlias(true);
-        paths.add(mPath);
-    }
-
-    public Paint getPaint() {
         return mPaint;
     }
 
@@ -111,18 +116,18 @@ public class UserPath implements ILayer {
     }
 
     public void _clearCanvas() {
-        mPath.reset();
-        paths = new ArrayList<>(0);
-        paths.add(mPath);
+        mLine.getPath().reset();
+        lines = new ArrayList<>(0);
+        lines.add(mLine);
         current_position = 0;
         paintView.invalidate();
     }
 
     public void _clearFrames() {
         frames = new ArrayList<>(0);
-        mPath.reset();
-        paths = new ArrayList<>(0);
-        paths.add(mPath);
+        mLine.getPath().reset();
+        lines = new ArrayList<>(0);
+        lines.add(mLine);
         current_position = 0;
         paintView.invalidate();
     }
@@ -138,15 +143,15 @@ public class UserPath implements ILayer {
     }
 
     public void undo() {
-        if (paths.size() > 0) {
-            paths.remove(paths.size() - 1);
-            if (paths.size() > 0) {
-                mPath = paths.get(paths.size() - 1);
+        if (lines.size() > 0) {
+            lines.remove(lines.size() - 1);
+            if (lines.size() > 0) {
+                mLine = lines.get(lines.size() - 1);
             } else {
                 _clearCanvas();
             }
         }
-        mPath.reset();
+        mLine.getPath().reset();
         paintView.invalidate();
         if (listener != null) {
             listener.onUndo();
@@ -161,16 +166,16 @@ public class UserPath implements ILayer {
                         if (frames.size() > current_position) {
                             switch (frames.get(current_position).type) {
                                 case PaintView.Frame.LINE_TO:
-                                    mPath.lineTo(frames.get(current_position).x1, frames.get(current_position).y1);
+                                    mLine.getPath().lineTo(frames.get(current_position).x1, frames.get(current_position).y1);
                                     break;
                                 case PaintView.Frame.CIRCLE:
-                                    mPath.addCircle(frames.get(current_position).x1, frames.get(current_position).y1, circleSize, Path.Direction.CW);
+                                    mLine.getPath().addCircle(frames.get(current_position).x1, frames.get(current_position).y1, circleSize, Path.Direction.CW);
                                     break;
                                 case PaintView.Frame.MOVE_TO:
-                                    mPath.moveTo(frames.get(current_position).x1, frames.get(current_position).y1);
+                                    mLine.getPath().moveTo(frames.get(current_position).x1, frames.get(current_position).y1);
                                     break;
                                 default:
-                                    mPath.quadTo(
+                                    mLine.getPath().quadTo(
                                             frames.get(current_position).x1,
                                             frames.get(current_position).y1,
                                             frames.get(current_position).x2,
@@ -199,18 +204,18 @@ public class UserPath implements ILayer {
         if (frame != null) {
             switch (frame.type) {
                 case PaintView.Frame.LINE_TO:
-                    mPath.lineTo(frame.x1, frame.y1);
-                    mPath = new Path();
-                    paths.add(mPath);
+                    mLine.getPath().lineTo(frame.x1, frame.y1);
+                    mLine = new Line(new Path(),getClonePaint());
+                    lines.add(mLine);
                     break;
                 case PaintView.Frame.CIRCLE:
-                    mPath.addCircle(frame.x1, frame.y1, circleSize, Path.Direction.CW);
+                    mLine.getPath().addCircle(frame.x1, frame.y1, circleSize, Path.Direction.CW);
                     break;
                 case PaintView.Frame.MOVE_TO:
-                    mPath.moveTo(frame.x1, frame.y1);
+                    mLine.getPath().moveTo(frame.x1, frame.y1);
                     break;
                 default:
-                    mPath.quadTo(
+                    mLine.getPath().quadTo(
                             frame.x1,
                             frame.y1,
                             frame.x2,
@@ -221,9 +226,10 @@ public class UserPath implements ILayer {
     }
 
     @Override
-    public ArrayList<Path> getPaths() {
-        return paths;
+    public ArrayList<Line> getLines() {
+        return lines;
     }
+
 
     public void drawFrame(final PaintView.Frame frame) {
         new android.os.Handler().postDelayed(

@@ -9,7 +9,6 @@ public interface ILayer {
     public void _clearCanvas();
     public void _clearFrames();
     public void addFrame(PaintView.Frame frame);
-    public ArrayList<Path> getPaths();
-    public Paint getPaint();
+    public ArrayList<Line> getLines();
     public String getId();
 }

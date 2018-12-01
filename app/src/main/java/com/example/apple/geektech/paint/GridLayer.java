@@ -10,11 +10,11 @@ public class GridLayer implements ILayer{
     public static final int GRID_SIZE = 200;
     public final Paint mPaint = new Paint();
     private final Path mPath = new Path();
-    private ArrayList<Path> paths = new ArrayList<>(0);
     private String id;
     private float strokeWidth = 4f;
     public int penColor = Color.GRAY;
     private PaintView paintView;
+    private ArrayList<Line> lines = new ArrayList<>(0);
 
 
     @Override
@@ -33,13 +33,8 @@ public class GridLayer implements ILayer{
     }
 
     @Override
-    public ArrayList<Path> getPaths() {
-        return paths;
-    }
-
-    @Override
-    public Paint getPaint() {
-        return mPaint;
+    public ArrayList<Line> getLines() {
+        return lines;
     }
 
     public String getId() {
@@ -49,7 +44,7 @@ public class GridLayer implements ILayer{
     public GridLayer(String id,PaintView paintView) {
         this.id = id;
         this.paintView = paintView;
-        paths.add(mPath);
+        lines.add(new Line(mPath,mPaint));
         init();
         drawGrid();
 
