@@ -1,6 +1,7 @@
 package com.example.apple.geektech;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.support.annotation.NonNull;
@@ -52,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
     private void init() {
-        getSupportActionBar().hide();
         paintView = findViewById(R.id.main_paint_view);
         clearButton = findViewById(R.id.clear_canvas);
         redrawBtn = findViewById(R.id.redraw);
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         contactBtn = findViewById(R.id.contactBtn);
         onlineContactsBtn = findViewById(R.id.onlineContactsBtn);
         historyBtn = findViewById(R.id.historyBtn);
+
     }
 
     private void initEvents() {
@@ -257,9 +259,16 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void changeButtonColor(int color) {
+
         ShapeDrawable footerBackground = new ShapeDrawable();
         footerBackground.setShape(new OvalShape());
         footerBackground.getPaint().setColor(color);
+        double y = (299 * Color.red(color) + 587 * Color.green(color) + 114 * Color.blue(color)) / 1000;
+        if (y >= 128) {
+            colorPickerBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_colorize_black_24dp));
+        }else {
+            colorPickerBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_colorize_white_24dp));
+        }
         colorPickerBtn.setBackgroundDrawable(footerBackground);
     }
 

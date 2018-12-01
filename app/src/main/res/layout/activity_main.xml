@@ -17,6 +17,7 @@
             android:id="@+id/main_paint_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@drawable/gradient"
             android:layout_above="@+id/scroll" />
         <HorizontalScrollView
             android:id="@+id/scroll"
