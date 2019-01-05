@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 import com.example.apple.geektech.paint.GridLayer;
 import com.example.apple.geektech.paint.PaintView;
 import com.example.apple.geektech.paint.UserPath;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     PaintView paintView;
     ImageButton clearButton, redrawBtn, undoButton, colorPickerBtn
-            ,gridBtn, contactBtn,historyBtn,onlineContactsBtn;
+            ,gridBtn, contactBtn,historyBtn,onlineContactsBtn, signOut;
     String UserId = null;
     UserPath selfUserPath = null;
     public static String USER_ID = "USER_ID";
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         contactBtn = findViewById(R.id.contactBtn);
         onlineContactsBtn = findViewById(R.id.onlineContactsBtn);
         historyBtn = findViewById(R.id.historyBtn);
+        signOut = findViewById(R.id.signOut);
 
     }
 
@@ -199,6 +201,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        signOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(MainActivity.this,LoginActivity.class));
+            }
+        });
 
         clearButton.setOnClickListener(new View.OnClickListener() {
             @Override

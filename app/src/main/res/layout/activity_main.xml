@@ -17,97 +17,104 @@
             android:id="@+id/main_paint_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/gradient"
-            android:layout_above="@+id/scroll" />
+            android:layout_above="@+id/scroll"
+            android:background="@drawable/gradient" />
+
         <HorizontalScrollView
             android:id="@+id/scroll"
-            android:layout_alignParentBottom="true"
-
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
 
-
-        <LinearLayout
-            android:id="@+id/tools"
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            android:scrollbars="horizontal"
-            android:paddingHorizontal="15dp"
-            android:paddingVertical="10dp"
-            >
-
-            <ImageButton
-                android:id="@+id/undo_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginRight="15dp"
-                android:background="@drawable/circle_button"
-                android:src="@drawable/ic_undo_black_24dp"
-                android:text="@string/clear" />
-
-            <ImageButton
-                android:id="@+id/clear_canvas"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginRight="15dp"
-                android:background="@drawable/circle_button"
-                android:src="@drawable/ic_clear_black_24dp"
-                android:text="@string/clear" />
-
-            <ImageButton
-                android:id="@+id/redraw"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginRight="15dp"
-                android:background="@drawable/circle_button"
-                android:src="@drawable/ic_play_arrow_black_24dp"
-                android:text="@string/clear" />
-
-            <ImageButton
-                android:id="@+id/color_picker"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginRight="15dp"
-                android:background="@drawable/circle_button"
-                android:src="@drawable/ic_colorize_black_24dp"
-                android:text="@string/clear" />
-
-            <ImageButton
-                android:id="@+id/gridBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginRight="15dp"
-                android:background="@drawable/circle_button"
-                android:src="@drawable/ic_grid_on_black_24dp" />
-
-            <ImageButton
-                android:id="@+id/contactBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginRight="15dp"
-                android:background="@drawable/circle_button"
-                android:src="@drawable/ic_contact_phone_black_24dp" />
-
-            <ImageButton
-                android:id="@+id/onlineContactsBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginRight="15dp"
-                android:background="@drawable/circle_button"
-                android:src="@drawable/ic_account_circle_black_24dp" />
+            android:layout_alignParentBottom="true">
 
 
-            <ImageButton
+            <LinearLayout
+                android:id="@+id/tools"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:paddingHorizontal="15dp"
+                android:paddingVertical="10dp"
+                android:scrollbars="horizontal">
+
+                <ImageButton
+                    android:id="@+id/undo_button"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginRight="15dp"
+                    android:background="@drawable/circle_button"
+                    android:src="@drawable/ic_undo_black_24dp"
+                    android:text="@string/clear" />
+
+                <ImageButton
+                    android:id="@+id/clear_canvas"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginRight="15dp"
+                    android:background="@drawable/circle_button"
+                    android:src="@drawable/ic_clear_black_24dp"
+                    android:text="@string/clear" />
+
+                <ImageButton
+                    android:id="@+id/redraw"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginRight="15dp"
+                    android:background="@drawable/circle_button"
+                    android:src="@drawable/ic_play_arrow_black_24dp"
+                    android:text="@string/clear" />
+
+                <ImageButton
+                    android:id="@+id/color_picker"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginRight="15dp"
+                    android:background="@drawable/circle_button"
+                    android:src="@drawable/ic_colorize_black_24dp"
+                    android:text="@string/clear" />
+
+                <ImageButton
+                    android:id="@+id/gridBtn"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginRight="15dp"
+                    android:background="@drawable/circle_button"
+                    android:src="@drawable/ic_grid_on_black_24dp" />
+
+                <ImageButton
+                    android:id="@+id/contactBtn"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginRight="15dp"
+                    android:background="@drawable/circle_button"
+                    android:src="@drawable/ic_contact_phone_black_24dp" />
+
+                <ImageButton
+                    android:id="@+id/onlineContactsBtn"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginRight="15dp"
+                    android:background="@drawable/circle_button"
+                    android:src="@drawable/ic_account_circle_black_24dp" />
 
 
-                android:id="@+id/historyBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/circle_button"
-                android:src="@drawable/ic_history_black_24dp" />
+                <ImageButton
+                    android:id="@+id/historyBtn"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginRight="15dp"
+                    android:background="@drawable/circle_button"
+                    android:src="@drawable/ic_history_black_24dp" />
 
-        </LinearLayout>
+                <ImageButton
+                    android:id="@+id/signOut"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/circle_button"
+                    android:src="@drawable/ic_exit_to_app_black_24dp" />
+
+            </LinearLayout>
         </HorizontalScrollView>
 
     </RelativeLayout>

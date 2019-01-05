@@ -11,6 +11,7 @@ import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 
+
 import java.util.ArrayList;
 
 public class OnlineContactsActivity extends AppCompatActivity {
@@ -33,11 +34,11 @@ public class OnlineContactsActivity extends AppCompatActivity {
         int width = dm.widthPixels;
         int height = dm.heightPixels;
 
-        getWindow().setLayout((int)(width*.8),(int) (height*.7));
+        getWindow().setLayout((int) (width * .8), (int) (height * .7));
 
         WindowManager.LayoutParams params = getWindow().getAttributes();
         params.gravity = Gravity.CENTER;
-        params.x =0;
+        params.x = 0;
         params.y = -20;
 
         getWindow().setAttributes(params);
@@ -54,18 +55,32 @@ public class OnlineContactsActivity extends AppCompatActivity {
         Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                 null, null, null, null);
 
+
         while (phones.moveToNext()) {
             String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
             String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            String maskedPhone = phone.replace("+996", "0");
+//            try {
 
-            UserObject mContact = new UserObject(name, phone);
-            userList.add(mContact);
-            mUserListAdapter.notifyDataSetChanged();
+
+
+
+
+//                if (user != null) {
+
+                    UserObject mContact = new UserObject(name, phone);
+                    userList.add(mContact);
+                    mUserListAdapter.notifyDataSetChanged();
+//                }
+//            } catch (FirebaseAuthException e) {
+//                e.printStackTrace();
+//            }
+
+
         }
+
+
     }
-
-
-
 
 
     private void initializerRecycleView() {

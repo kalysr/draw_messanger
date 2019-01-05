@@ -19,16 +19,17 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
         <activity android:name=".MainActivity" />
         <activity android:name=".SignInActivity" />
+
         <activity android:name=".FriendsActivity" />
         <activity
             android:name=".HistoryActivity"
  />
         <activity android:name=".OnlineContactsActivity"
 
-            android:theme="@style/AppTheme.NoActionBar"
             ></activity>
     </application>
 
