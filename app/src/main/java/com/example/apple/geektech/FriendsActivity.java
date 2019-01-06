@@ -6,13 +6,22 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.telephony.TelephonyManager;
 import android.widget.LinearLayout;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -23,7 +32,7 @@ public class FriendsActivity extends AppCompatActivity {
     private RecyclerView.Adapter mUserListAdapter;
     private RecyclerView.LayoutManager mUserListLayoutManager;
 
-    ArrayList<UserObject> userList;
+    ArrayList<UserObject> userList, contactList;
 
 
     @Override
@@ -31,29 +40,84 @@ public class FriendsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
         userList = new ArrayList<>();
+        contactList = new ArrayList<>();
         initializerRecycleView();
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)  != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED ) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             getPermissions();
-        }else {
+        } else {
             getContactList();
         }
     }
 
 
     void getContactList() {
+
+        String IOSprefix = getCountryISO();
         Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                 null, null, null, null);
 
         while (phones.moveToNext()) {
             String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
             String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            phone = phone.replace(" ", "");
+            phone = phone.replace("-", "");
+            phone = phone.replace(")", "");
+            phone = phone.replace("(", "");
 
+            if (!String.valueOf(phone.charAt(0)).equals("+"))
+                phone = IOSprefix + phone;
             UserObject mContact = new UserObject(name, phone);
-            userList.add(mContact);
-            mUserListAdapter.notifyDataSetChanged();
+
+
+
+            contactList.add(mContact);
+
+            getUserDetails(mContact);
         }
+    }
+
+    private void getUserDetails(final UserObject mContact) {
+        DatabaseReference mUserDB = FirebaseDatabase.getInstance().getReference().child("users");
+        Query query = mUserDB.orderByChild("phone").equalTo(mContact.getPhone());
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    String phone = "",
+                            name = "";
+
+                    for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                        if (childSnapshot.child("phone").getValue() != null)
+                            phone = childSnapshot.child("phone").getValue().toString();
+                        if (childSnapshot.child("name").getValue() != null)
+                            name = childSnapshot.child("name").getValue().toString();
+
+                        UserObject mUser = new UserObject(name, phone);
+
+                        if(name.equals(phone)){
+                            for (UserObject mContactIterator : contactList)
+                                if (mContactIterator.getPhone().equals(mUser.getPhone()))
+                                    mUser.setName(mContactIterator.getName());
+                        }
+
+                        userList.add(mUser);
+                        mUserListAdapter.notifyDataSetChanged();
+
+
+                        return;
+                    }
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
     @Override
@@ -89,4 +153,18 @@ public class FriendsActivity extends AppCompatActivity {
 
         mUserList.setAdapter(mUserListAdapter);
     }
+
+    private String getCountryISO() {
+        String iso = null;
+
+        TelephonyManager telephonyManager = (TelephonyManager) getApplicationContext().getSystemService(getApplicationContext().TELEPHONY_SERVICE);
+
+        if (telephonyManager.getNetworkCountryIso() != null)
+            if (!telephonyManager.getNetworkCountryIso().toString().equals(""))
+                iso = telephonyManager.getNetworkCountryIso().toString();
+
+
+        return CountryToPhonePrfix.getPhone(iso);
+    }
+
 }

@@ -24,8 +24,15 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.out;
@@ -56,15 +63,6 @@ public class LoginActivity extends AppCompatActivity {
         login_forward = findViewById(R.id.login_forward);
         phone_number = findViewById(R.id.phone_number_field);
         verificationCodeInput = findViewById(R.id.verifaciton_code);
-
-        Button main_activity_btn = findViewById(R.id.main_activity_btn);
-
-        main_activity_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-            }
-        });
 
 
         login_forward.setOnClickListener(new View.OnClickListener() {
@@ -149,9 +147,30 @@ public class LoginActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-//
-//                            FirebaseUser user = task.getResult().getUser();
-                            // ...
+
+                            final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+                            if (user != null){
+                                final DatabaseReference mUserDB = FirebaseDatabase.getInstance().getReference().child("users").child(user.getUid());
+                                mUserDB.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        if (!dataSnapshot.exists()){
+                                            Map<String,Object> userMap = new HashMap<>();
+                                            userMap.put("phone",user.getPhoneNumber());
+                                            userMap.put("name",user.getPhoneNumber());
+                                            mUserDB.updateChildren(userMap);
+                                        }
+                                        userIsLoggedIn();
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
+
+                            }
 
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
 

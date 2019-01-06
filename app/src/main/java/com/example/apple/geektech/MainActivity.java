@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
@@ -29,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     PaintView paintView;
     ImageButton clearButton, redrawBtn, undoButton, colorPickerBtn
             ,gridBtn, contactBtn,historyBtn,onlineContactsBtn, signOut;
-    String UserId = null;
+    String UserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
     UserPath selfUserPath = null;
     public static String USER_ID = "USER_ID";
     boolean pressed = true;
@@ -46,9 +47,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initUserId() {
-        this.UserId = SharedPreferenceHelper.getString(this, USER_ID, null);
+
+//        this.UserId = SharedPreferenceHelper.getString(this, USER_ID, null);
+        this.UserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (this.UserId == null) {
-            this.UserId = FirebaseHelper.getInstance().addUser();
+            this.UserId = FirebaseAuth.getInstance().getUid();
             SharedPreferenceHelper.setString(this, USER_ID, this.UserId);
         }
     }
@@ -285,6 +288,8 @@ public class MainActivity extends AppCompatActivity {
     private void addUserEvents(final String userId, DataSnapshot dataSnapshot) {
         final DatabaseReference mDatabase = FirebaseHelper.getInstance().getDatabase();
 
+
+
         final UserPath userPath = new UserPath(userId, paintView);
         paintView.addLayer(userPath);
 
@@ -318,6 +323,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mDatabase.child("users").child(userId).child("data").setValue("");
+
         mDatabase.child("users").child(userId).child("data").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
