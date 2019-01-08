@@ -1,4 +1,4 @@
-package com.example.apple.geektech;
+package com.example.apple.geektech.Utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,7 +11,7 @@ public class SharedPreferenceHelper {
      * @param key - Key to set shared preference
      * @param value - Value for the key
      */
-    static void setString(Context context, String key, String value){
+    public static void setString(Context context, String key, String value){
         SharedPreferences settings = context.getSharedPreferences(PREF_FILE, 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString(key, value);

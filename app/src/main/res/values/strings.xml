@@ -8,4 +8,6 @@
     <string name="received_code">Received code</string>
     <string name="title_activity_history">HistoryActivity</string>
     <string name="verification_code">Verification Code</string>
+    <string name="text">DrawMessanger will send an SMS message to verify yout phone number. Enter your country code and phone number: </string>
+
 </resources>

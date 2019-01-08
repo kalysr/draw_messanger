@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.example.apple.geektech.Library.App;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseException;
@@ -29,6 +30,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -46,6 +49,8 @@ public class LoginActivity extends AppCompatActivity {
     PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
     public PhoneAuthProvider.ForceResendingToken mResendToken;
 
+    DatabaseReference usersReference;
+
     public static final String TAG = "TAG";
 
     @Override
@@ -53,6 +58,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         mAuth=FirebaseAuth.getInstance();
+        usersReference = FirebaseDatabase.getInstance().getReference().child("users");
         FirebaseApp.initializeApp(this);
 
 
@@ -76,12 +82,8 @@ public class LoginActivity extends AppCompatActivity {
                     mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                         @Override
                         public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
-                            // out.println(phoneAuthCredential);
-                            // App.telegram("Verification completed");
                             signInWithPhoneAuthCredential(phoneAuthCredential);
-
-//                            Toast.makeText(LoginActivity.this, "Verification Done" + phoneAuthCredential, Toast.LENGTH_LONG).show();
-                        }
+ }
 
                         @Override
                         public void onVerificationFailed(FirebaseException e) {
@@ -146,37 +148,46 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithCredential:success");
 
                             final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                            FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+                                @Override
+                                public void onSuccess(InstanceIdResult instanceIdResult) {
+                                    String token = instanceIdResult.getToken();
+                                    usersReference.child(user.getUid()).child("device_token").setValue(token).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            if (user != null){
+                                                final DatabaseReference mUserDB = FirebaseDatabase.getInstance().getReference().child("users").child(user.getUid());
+                                                mUserDB.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                        if (dataSnapshot.exists()){
+                                                            Map<String,Object> userMap = new HashMap<>();
+                                                            userMap.put("phone",user.getPhoneNumber());
+                                                            userMap.put("name",user.getPhoneNumber());
+                                                            mUserDB.updateChildren(userMap);
+                                                            Toast.makeText(LoginActivity.this, "Added", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                        userIsLoggedIn();
+                                                    }
 
-                            if (user != null){
-                                final DatabaseReference mUserDB = FirebaseDatabase.getInstance().getReference().child("users").child(user.getUid());
-                                mUserDB.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        if (!dataSnapshot.exists()){
-                                            Map<String,Object> userMap = new HashMap<>();
-                                            userMap.put("phone",user.getPhoneNumber());
-                                            userMap.put("name",user.getPhoneNumber());
-                                            mUserDB.updateChildren(userMap);
+                                                    @Override
+                                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                    }
+                                                });
+
+                                            }
                                         }
-                                        userIsLoggedIn();
-                                    }
+                                    });
+                                }
+                            });
 
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                    }
-                                });
-
-                            }
-
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            finish();
 
                         } else {
                             // Sign in failed, display a message and update the UI
-                            Log.w(TAG, "signInWithCredential:failure", task.getException());
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                                 verificationCodeInput.setError("The verification code entered was invalid");
                             }

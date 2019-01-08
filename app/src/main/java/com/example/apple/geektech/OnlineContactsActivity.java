@@ -12,6 +12,9 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 
+import com.example.apple.geektech.Utils.UserListAdapter;
+import com.example.apple.geektech.Utils.UserObject;
+
 import java.util.ArrayList;
 
 public class OnlineContactsActivity extends AppCompatActivity {
@@ -91,7 +94,7 @@ public class OnlineContactsActivity extends AppCompatActivity {
         mUserListLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayout.VERTICAL, false);
         mUserList.setLayoutManager(mUserListLayoutManager);
 
-        mUserListAdapter = new UserListAdapter(userList);
+        mUserListAdapter = new UserListAdapter(getApplicationContext(),userList);
 
         mUserList.setAdapter(mUserListAdapter);
     }

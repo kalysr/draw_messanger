@@ -1,21 +1,26 @@
 package com.example.apple.geektech;
 
 import android.Manifest;
-import android.content.Intent;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.telephony.TelephonyManager;
+import android.util.Log;
+import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import com.example.apple.geektech.Utils.CountryToPhonePrfix;
+import com.example.apple.geektech.Utils.UserListAdapter;
+import com.example.apple.geektech.Utils.UserObject;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -25,20 +30,25 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class FriendsActivity extends AppCompatActivity {
+public class FriendsActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static final int MY_PERMISSIONS_REQUEST_CODE = 1;
+    private static final String TAG = "TAG" ;
     private RecyclerView mUserList;
     private RecyclerView.Adapter mUserListAdapter;
     private RecyclerView.LayoutManager mUserListLayoutManager;
-
+public Context context;
     ArrayList<UserObject> userList, contactList;
+
+    private String sender_user_id,receiver_user_id;
+    private DatabaseReference notificationsReference;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
+        context = getApplicationContext();
         userList = new ArrayList<>();
         contactList = new ArrayList<>();
         initializerRecycleView();
@@ -49,6 +59,7 @@ public class FriendsActivity extends AppCompatActivity {
         } else {
             getContactList();
         }
+
     }
 
 
@@ -67,44 +78,50 @@ public class FriendsActivity extends AppCompatActivity {
             phone = phone.replace("(", "");
 
             if (!String.valueOf(phone.charAt(0)).equals("+"))
-                phone = IOSprefix + phone;
+                phone = IOSprefix + phone.substring(1);
+
             UserObject mContact = new UserObject(name, phone);
 
-
-
+            getUserDetails(mContact);
             contactList.add(mContact);
 
-            getUserDetails(mContact);
         }
     }
 
     private void getUserDetails(final UserObject mContact) {
-        DatabaseReference mUserDB = FirebaseDatabase.getInstance().getReference().child("users");
+
+        final DatabaseReference mUserDB = FirebaseDatabase.getInstance().getReference().child("users");
+        mUserDB.keepSynced(true);
+
         Query query = mUserDB.orderByChild("phone").equalTo(mContact.getPhone());
+
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     String phone = "",
-                            name = "";
+                            name = "",
+                            key = "";
 
                     for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
                         if (childSnapshot.child("phone").getValue() != null)
                             phone = childSnapshot.child("phone").getValue().toString();
-                        if (childSnapshot.child("name").getValue() != null)
+                        if (childSnapshot.child("name").getValue() != null) {
                             name = childSnapshot.child("name").getValue().toString();
+                            key = childSnapshot.getKey();
+                        }
 
-                        UserObject mUser = new UserObject(name, phone);
+                        UserObject mUser = new UserObject(name, phone,key );
 
-                        if(name.equals(phone)){
+                        if(mContact.getPhone().equals(phone)){
                             for (UserObject mContactIterator : contactList)
-                                if (mContactIterator.getPhone().equals(mUser.getPhone()))
+                                if (mContactIterator.getPhone().equals(mUser.getPhone())) {
                                     mUser.setName(mContactIterator.getName());
+                                }
                         }
 
                         userList.add(mUser);
                         mUserListAdapter.notifyDataSetChanged();
-
 
                         return;
                     }
@@ -130,6 +147,8 @@ public class FriendsActivity extends AppCompatActivity {
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
+
+                    Toast.makeText(context, "PERSMISSION DENIED", Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -146,12 +165,12 @@ public class FriendsActivity extends AppCompatActivity {
         mUserList.setNestedScrollingEnabled(false);
         mUserList.setHasFixedSize(false);
 
-        mUserListLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayout.VERTICAL, false);
-        mUserList.setLayoutManager(mUserListLayoutManager);
 
-        mUserListAdapter = new UserListAdapter(userList);
-
+        mUserListAdapter = new UserListAdapter(context,userList);
         mUserList.setAdapter(mUserListAdapter);
+
+        mUserListLayoutManager = new LinearLayoutManager(context, LinearLayout.VERTICAL, false);
+        mUserList.setLayoutManager(mUserListLayoutManager);
     }
 
     private String getCountryISO() {
@@ -167,4 +186,8 @@ public class FriendsActivity extends AppCompatActivity {
         return CountryToPhonePrfix.getPhone(iso);
     }
 
+    @Override
+    public void onClick(View v) {
+
+    }
 }
