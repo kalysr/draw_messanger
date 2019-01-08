@@ -37,7 +37,7 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
     private RecyclerView mUserList;
     private RecyclerView.Adapter mUserListAdapter;
     private RecyclerView.LayoutManager mUserListLayoutManager;
-public Context context;
+    public Context context;
     ArrayList<UserObject> userList, contactList;
 
     private String sender_user_id,receiver_user_id;

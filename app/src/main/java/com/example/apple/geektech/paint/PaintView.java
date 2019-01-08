@@ -20,6 +20,7 @@ public class PaintView extends View {
     private float mCurrY = 0f;
     private float mStartX = 0f;
     private float mStartY = 0f;
+    private float globalScale = getResources().getDisplayMetrics().scaledDensity;
     private ILayer selfLayer;
     private Map<String,ILayer> users = new HashMap<>(0);
 
