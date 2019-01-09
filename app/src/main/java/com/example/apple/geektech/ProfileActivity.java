@@ -1,5 +1,6 @@
-package com.example.apple.geektech.Utils;
+package com.example.apple.geektech;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -45,6 +46,25 @@ public class ProfileActivity extends AppCompatActivity {
 //                String status = dataSnapshot.child("user_status").getValue().toString();
 
 //                statusTV.setText(status);
+
+                friendRequestReference.child(sender_id)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.hasChild(receiver_id)){
+                                    String req_type = dataSnapshot.child(receiver_id).child("request_type").getValue().toString();
+                                    if (req_type.equals("sent")) {
+                                        CURRENT_STATE = "request_sent";
+                                    }
+                                    else CURRENT_STATE = "";
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
             }
 
             @Override
@@ -80,11 +100,19 @@ public class ProfileActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){
-//                                    notificationsReference.child(receiver_id).setValue(receiver_id);
-                                    notificationsReference.push().child(receiver_id).push();
+
+
                                     sendRequestBtn.setEnabled(true);
                                     CURRENT_STATE = "request_sent";
                                     sendRequestBtn.setText("Cancel friend request");
+
+
+
+                                    Intent intent = new Intent(ProfileActivity.this,MainActivity.class);
+                                    intent.putExtra("name",getIntent().getStringExtra("name"));
+
+                                    startActivity(intent);
+
                                 }
                             }
                         });

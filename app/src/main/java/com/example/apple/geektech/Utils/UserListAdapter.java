@@ -4,16 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.apple.geektech.MainActivity;
+import com.example.apple.geektech.ProfileActivity;
 import com.example.apple.geektech.R;
 
 import java.util.ArrayList;
@@ -54,8 +51,8 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
 
 
                 Intent intent = new Intent(mContext,ProfileActivity.class);
-                intent.putExtra("name",userList.get(i).name);
-                intent.putExtra("receiver_id",userList.get(i).ref_key);
+                intent.putExtra("name",userList.get(i).getName());
+                intent.putExtra("receiver_id",userList.get(i).getRef_key());
 
                 mContext.startActivity(intent);
             }

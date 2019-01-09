@@ -2,6 +2,7 @@ package com.example.apple.geektech;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
@@ -12,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
@@ -19,8 +21,10 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.apple.geektech.Utils.CountryToPhonePrfix;
+import com.example.apple.geektech.Utils.SharedPreferenceHelper;
 import com.example.apple.geektech.Utils.UserListAdapter;
 import com.example.apple.geektech.Utils.UserObject;
+import com.google.android.gms.common.util.SharedPreferencesUtils;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,20 +32,20 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class FriendsActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static final int MY_PERMISSIONS_REQUEST_CODE = 1;
-    private static final String TAG = "TAG" ;
+    private static final String TAG = "TAG";
     private RecyclerView mUserList;
     private RecyclerView.Adapter mUserListAdapter;
     private RecyclerView.LayoutManager mUserListLayoutManager;
     public Context context;
     ArrayList<UserObject> userList, contactList;
-
-    private String sender_user_id,receiver_user_id;
-    private DatabaseReference notificationsReference;
 
 
     @Override
@@ -51,6 +55,9 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
         context = getApplicationContext();
         userList = new ArrayList<>();
         contactList = new ArrayList<>();
+//        sharedPref = getCallingActivity()
+
+
         initializerRecycleView();
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED ||
@@ -80,10 +87,10 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
             if (!String.valueOf(phone.charAt(0)).equals("+"))
                 phone = IOSprefix + phone.substring(1);
 
-            UserObject mContact = new UserObject(name, phone);
+                UserObject mContact = new UserObject(name, phone);
+                getUserDetails(mContact);
+                contactList.add(mContact);
 
-            getUserDetails(mContact);
-            contactList.add(mContact);
 
         }
     }
@@ -111,9 +118,9 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
                             key = childSnapshot.getKey();
                         }
 
-                        UserObject mUser = new UserObject(name, phone,key );
+                        UserObject mUser = new UserObject(name, phone, key);
 
-                        if(mContact.getPhone().equals(phone)){
+                        if (mContact.getPhone().equals(phone)) {
                             for (UserObject mContactIterator : contactList)
                                 if (mContactIterator.getPhone().equals(mUser.getPhone())) {
                                     mUser.setName(mContactIterator.getName());
@@ -166,7 +173,7 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
         mUserList.setHasFixedSize(false);
 
 
-        mUserListAdapter = new UserListAdapter(context,userList);
+        mUserListAdapter = new UserListAdapter(context, userList);
         mUserList.setAdapter(mUserListAdapter);
 
         mUserListLayoutManager = new LinearLayoutManager(context, LinearLayout.VERTICAL, false);

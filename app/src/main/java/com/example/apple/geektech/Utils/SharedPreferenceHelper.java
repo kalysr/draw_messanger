@@ -18,6 +18,8 @@ public class SharedPreferenceHelper {
         editor.apply();
     }
 
+
+
     /**
      * Set a integer shared preference
      * @param key - Key to set shared preference
@@ -48,7 +50,7 @@ public class SharedPreferenceHelper {
      * @param defValue - Default value to be returned if shared preference isn't found.
      * @return value - String containing value of the shared preference if found.
      */
-    static String getString(Context context, String key, String defValue){
+   public static String getString(Context context, String key, String defValue){
         SharedPreferences settings = context.getSharedPreferences(PREF_FILE, 0);
         return settings.getString(key, defValue);
     }
@@ -74,4 +76,6 @@ public class SharedPreferenceHelper {
         SharedPreferences settings = context.getSharedPreferences(PREF_FILE, 0);
         return settings.getBoolean(key, defValue);
     }
+
+
 }

@@ -69,54 +69,46 @@ public class LoginActivity extends AppCompatActivity {
         login_forward = findViewById(R.id.login_forward);
         phone_number = findViewById(R.id.phone_number_field);
         verificationCodeInput = findViewById(R.id.verifaciton_code);
+        mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+            @Override
+            public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
+                signInWithPhoneAuthCredential(phoneAuthCredential);
+            }
 
+            @Override
+            public void onVerificationFailed(FirebaseException e) {
+                Toast.makeText(LoginActivity.this, "Verification Fail: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                    Toast.makeText(LoginActivity.this, "Invalid Number", Toast.LENGTH_SHORT).show();
+                } else if (e instanceof FirebaseTooManyRequestsException) {
+                    Toast.makeText(LoginActivity.this, "Too many Request", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                mVerificationId = s;
+                mResendToken = forceResendingToken;
+
+
+                login_forward.setVisibility(View.INVISIBLE);
+                phone_number.setVisibility(View.INVISIBLE);
+
+                getVerCode.setVisibility(View.VISIBLE);
+                verificationCodeInput.setVisibility(View.VISIBLE);
+
+                Toast.makeText(LoginActivity.this, "Code Sent", Toast.LENGTH_SHORT).show();
+                App.telegram("Code Sent");
+            }
+        };
 
         login_forward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-
                 if (!TextUtils.isEmpty(phone_number.getText())) {
-
-
-                    mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-                        @Override
-                        public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
-                            signInWithPhoneAuthCredential(phoneAuthCredential);
- }
-
-                        @Override
-                        public void onVerificationFailed(FirebaseException e) {
-                            Toast.makeText(LoginActivity.this, "Verification Fail: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                            if (e instanceof FirebaseAuthInvalidCredentialsException) {
-                                Toast.makeText(LoginActivity.this, "Invalid Number", Toast.LENGTH_SHORT).show();
-                            } else if (e instanceof FirebaseTooManyRequestsException) {
-                                Toast.makeText(LoginActivity.this, "Too many Request", Toast.LENGTH_SHORT).show();
-                            }
-
-                        }
-
-                        @Override
-                        public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
-                            mVerificationId = s;
-                            mResendToken = forceResendingToken;
-
-
-                            login_forward.setVisibility(View.INVISIBLE);
-                            phone_number.setVisibility(View.INVISIBLE);
-
-                            getVerCode.setVisibility(View.VISIBLE);
-                            verificationCodeInput.setVisibility(View.VISIBLE);
-
-                            Toast.makeText(LoginActivity.this, "Code Sent", Toast.LENGTH_SHORT).show();
-                            App.telegram("Code Sent");
-                        }
-                    };
-
                     verifyPhone();
-
-
-//                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
                 } else
                     phone_number.setError("Phone is required");
             }
@@ -214,7 +206,7 @@ public class LoginActivity extends AppCompatActivity {
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            startActivity(new Intent(getApplicationContext(), FriendsActivity.class));
             finish();
         }
     }

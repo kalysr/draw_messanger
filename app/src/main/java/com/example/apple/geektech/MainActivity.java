@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initUserId() {
 
-//        this.UserId = SharedPreferenceHelper.getString(this, USER_ID, null);
+        this.UserId = SharedPreferenceHelper.getString(this, USER_ID, null);
         this.UserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (this.UserId == null) {
             this.UserId = FirebaseAuth.getInstance().getUid();
@@ -81,8 +81,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-
-
 
     private void initEvents() {
 
@@ -278,10 +276,6 @@ public class MainActivity extends AppCompatActivity {
         });
         colorPicker.show();
     }
-
-
-
-
 
     public void changeButtonColor(int color) {
 
