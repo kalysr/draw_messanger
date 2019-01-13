@@ -88,6 +88,7 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
                 phone = IOSprefix + phone.substring(1);
 
                 UserObject mContact = new UserObject(name, phone);
+//                SharedPreferenceHelper.setString(this,"",);
                 getUserDetails(mContact);
                 contactList.add(mContact);
 
@@ -173,7 +174,7 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
         mUserList.setHasFixedSize(false);
 
 
-        mUserListAdapter = new UserListAdapter(context, userList);
+        mUserListAdapter = new UserListAdapter(this, userList);
         mUserList.setAdapter(mUserListAdapter);
 
         mUserListLayoutManager = new LinearLayoutManager(context, LinearLayout.VERTICAL, false);

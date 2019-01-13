@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.example.apple.geektech.Utils.FirebaseHelper;
 import com.example.apple.geektech.Utils.SerializationUtil;
@@ -79,6 +80,10 @@ public class MainActivity extends AppCompatActivity {
         if (getIntent().hasExtra("name")){
             setTitle(getIntent().getStringExtra("name"));
 
+        }
+        if (getIntent().hasExtra("accepted")){
+            boolean accepted = getIntent().getBooleanExtra("accepted",false);
+            Toast.makeText(this,"Friend request has been "+(accepted?"accepted":"declined"),Toast.LENGTH_LONG).show();
         }
     }
 
@@ -368,4 +373,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+
 }

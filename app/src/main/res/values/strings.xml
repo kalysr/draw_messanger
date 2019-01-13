@@ -9,5 +9,6 @@
     <string name="title_activity_history">HistoryActivity</string>
     <string name="verification_code">Verification Code</string>
     <string name="text">DrawMessanger will send an SMS message to verify yout phone number. Enter your country code and phone number: </string>
+    <string name="default_notification_channel_id">draw_messanger_channel_id</string>
 
 </resources>

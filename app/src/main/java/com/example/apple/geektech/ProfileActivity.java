@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.apple.geektech.R;
+import com.example.apple.geektech.api.NotificationApi;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,9 +24,9 @@ import com.google.firebase.database.ValueEventListener;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    Button sendRequestBtn,declineFrienRequestBtn;
+    Button sendRequestBtn, declineFrienRequestBtn;
     ImageView profilePhoto;
-    TextView statusTV,contactNameTV;
+    TextView statusTV, contactNameTV;
 
     DatabaseReference userReference;
     DatabaseReference friendRequestReference, notificationsReference;
@@ -32,6 +34,7 @@ public class ProfileActivity extends AppCompatActivity {
     String receiver_id;
     String sender_id;
     FirebaseAuth mAuth;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,12 +54,11 @@ public class ProfileActivity extends AppCompatActivity {
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.hasChild(receiver_id)){
+                                if (dataSnapshot.hasChild(receiver_id)) {
                                     String req_type = dataSnapshot.child(receiver_id).child("request_type").getValue().toString();
                                     if (req_type.equals("sent")) {
                                         CURRENT_STATE = "request_sent";
-                                    }
-                                    else CURRENT_STATE = "";
+                                    } else CURRENT_STATE = "";
                                 }
                             }
 
@@ -74,51 +76,72 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
 
-
         sendRequestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sendRequestBtn.setEnabled(false);
+                //  sendRequestBtn.setEnabled(false);
 
-                if (CURRENT_STATE == "not_friend"){
-                    sendFriendRequest();
-                }
+                //if (CURRENT_STATE == "not_friend"){
+                sendFriendRequest();
+                //    }
             }
         });
 
     }
 
     private void sendFriendRequest() {
-        friendRequestReference.child(sender_id).child(receiver_id).child("request_type")
-                              .setValue("sent").addOnCompleteListener(new OnCompleteListener<Void>() {
+
+        DatabaseReference device_token = userReference.child(receiver_id).child("device_token");
+
+        device_token.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                    if (task.isSuccessful()){
-                        friendRequestReference.child(receiver_id).child(sender_id)
-                                .child("request_type").setValue("receiver")
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()){
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
+                String title = "Notification";
+                String phoneNumber = mAuth.getCurrentUser().getPhoneNumber();
+                String body = phoneNumber +" wants to send a message.";
+                NotificationApi.send(ProfileActivity.this,new NotificationApi.Data(
+                        title,
+                        body,
+                        dataSnapshot.getValue().toString()
+                        ));
+            }
 
-                                    sendRequestBtn.setEnabled(true);
-                                    CURRENT_STATE = "request_sent";
-                                    sendRequestBtn.setText("Cancel friend request");
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-
-
-                                    Intent intent = new Intent(ProfileActivity.this,MainActivity.class);
-                                    intent.putExtra("name",getIntent().getStringExtra("name"));
-
-                                    startActivity(intent);
-
-                                }
-                            }
-                        });
-                    }
             }
         });
+
+
+
+
+        friendRequestReference.child(sender_id).child(receiver_id).child("request_type")
+                .setValue("sent").addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+
+                    friendRequestReference.child(receiver_id).child(sender_id)
+                            .child("request_type").setValue("receiver")
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        CURRENT_STATE = "request_sent";
+                                        sendRequestBtn.setText("Cancel friend request");
+                                        sendRequestBtn.setEnabled(true);
+                                    }
+                                    Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
+                                    intent.putExtra("name", getIntent().getStringExtra("name"));
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            });
+                }
+            }
+        });
+
     }
 
     private void init() {
@@ -134,7 +157,10 @@ public class ProfileActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         sender_id = mAuth.getCurrentUser().getUid();
         userReference = FirebaseDatabase.getInstance().getReference().child("users");
+        userReference.keepSynced(true);
         friendRequestReference = FirebaseDatabase.getInstance().getReference().child("Friend_Requests");
+        friendRequestReference.keepSynced(true);
+        friendRequestReference.getParent().keepSynced(true);
 
 
         CURRENT_STATE = "not_friend";
@@ -142,16 +168,15 @@ public class ProfileActivity extends AppCompatActivity {
         getIntentExtras();
 
 
-
     }
 
     private void getIntentExtras() {
 
-        if (getIntent().hasExtra("name")){
+        if (getIntent().hasExtra("name")) {
             contactNameTV.setText(getIntent().getStringExtra("name"));
             receiver_id = getIntent().getStringExtra("receiver_id");
 
-            Toast.makeText(this, receiver_id +"", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, receiver_id + "", Toast.LENGTH_SHORT).show();
 
         }
     }
