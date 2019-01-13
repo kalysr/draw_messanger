@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.example.apple.geektech.Utils.FirebaseHelper;
 import com.example.apple.geektech.Utils.SerializationUtil;
 import com.example.apple.geektech.Utils.SharedPreferenceHelper;
+import com.example.apple.geektech.api.NotificationApi;
 import com.example.apple.geektech.paint.GridLayer;
 import com.example.apple.geektech.paint.PaintView;
 import com.example.apple.geektech.paint.UserPath;
@@ -48,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
         initUserId();
         initEvents();
         getIncomingIntent();
+
+
     }
 
     private void initUserId() {
@@ -84,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
         if (getIntent().hasExtra("accepted")){
             boolean accepted = getIntent().getBooleanExtra("accepted",false);
             Toast.makeText(this,"Friend request has been "+(accepted?"accepted":"declined"),Toast.LENGTH_LONG).show();
+//            NotificationApi.send(this,new NotificationApi.Data("Request has"));
+
         }
     }
 

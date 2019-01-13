@@ -42,10 +42,11 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
     public static final int MY_PERMISSIONS_REQUEST_CODE = 1;
     private static final String TAG = "TAG";
     private RecyclerView mUserList;
-    private RecyclerView.Adapter mUserListAdapter;
+    private static RecyclerView.Adapter mUserListAdapter;
     private RecyclerView.LayoutManager mUserListLayoutManager;
     public Context context;
-    ArrayList<UserObject> userList, contactList;
+    static ArrayList<UserObject> userList;
+    static ArrayList<UserObject> contactList;
 
 
     @Override
@@ -187,8 +188,8 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
         TelephonyManager telephonyManager = (TelephonyManager) getApplicationContext().getSystemService(getApplicationContext().TELEPHONY_SERVICE);
 
         if (telephonyManager.getNetworkCountryIso() != null)
-            if (!telephonyManager.getNetworkCountryIso().toString().equals(""))
-                iso = telephonyManager.getNetworkCountryIso().toString();
+            if (!telephonyManager.getNetworkCountryIso().equals(""))
+                iso = telephonyManager.getNetworkCountryIso();
 
 
         return CountryToPhonePrfix.getPhone(iso);

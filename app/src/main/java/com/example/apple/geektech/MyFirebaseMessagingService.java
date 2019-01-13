@@ -1,5 +1,6 @@
 package com.example.apple.geektech;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,16 +11,25 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
+import com.example.apple.geektech.Utils.UserObject;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+
+import static com.example.apple.geektech.FriendsActivity.contactList;
+
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
-        //String data = remoteMessage.getNotification().getBody().substring(11);
-        sendNotification(remoteMessage.getNotification().getBody(),remoteMessage.getNotification().getTitle());
+        String phone = remoteMessage.getNotification().getBody().substring(0, 13);
+        String name = getUserName(phone);
+
+        String body = remoteMessage.getNotification().getBody()
+                .substring(13, remoteMessage.getNotification().getBody().length());
+
+        sendNotification(name+body, remoteMessage.getNotification().getTitle());
 
     }
 
@@ -27,15 +37,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Intent intent = new Intent(this, MainActivity.class);
 
         Intent intentAccept = new Intent(this, MainActivity.class);
-        intentAccept.putExtra("accepted",true);
+        intentAccept.putExtra("accepted", true);
         Intent intentDecline = new Intent(this, MainActivity.class);
-        intentDecline.putExtra("accepted",false);
+        intentDecline.putExtra("accepted", false);
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
-                PendingIntent.FLAG_ONE_SHOT)
-                ;
+                PendingIntent.FLAG_ONE_SHOT);
         PendingIntent pendingAcceptIntent = PendingIntent.getActivity(this, 10 /* Request code */, intentAccept,
                 PendingIntent.FLAG_ONE_SHOT);
         PendingIntent pendingDeclineIntent = PendingIntent.getActivity(this, 11 /* Request code */, intentDecline,
@@ -51,10 +60,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
                         .setContentIntent(pendingIntent)
-                        .setPriority(NotificationCompat.PRIORITY_HIGH);
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .addAction(R.mipmap.ic_launcher, "Accept", pendingAcceptIntent)
+                        .addAction(R.mipmap.ic_launcher, "Decline", pendingDeclineIntent);
 
-        notificationBuilder.addAction(R.mipmap.ic_launcher,"Accept",pendingAcceptIntent);
-        notificationBuilder.addAction(R.mipmap.ic_launcher, "Decline", pendingDeclineIntent);
+
 
 
         NotificationManager notificationManager =
@@ -70,4 +80,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
     }
+
+    public static String getUserName(String phone) {
+        for (UserObject mContactIterator : contactList)
+            if (mContactIterator.getPhone().equals(phone))
+                return mContactIterator.getName();
+
+        return phone;
+
+    }
+
 }
