@@ -36,6 +36,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class FriendsActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -66,16 +69,28 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
             getPermissions();
         } else {
             getContactList();
+            userFromDb();
         }
 
     }
 
 
     void getContactList() {
+        String IOSprefix="";
 
-        String IOSprefix = getCountryISO();
+        try {
+            IOSprefix = getCountryISO();
+            SharedPreferenceHelper.setString(this,"code",IOSprefix);
+        } catch (NullPointerException e){
+
+        }
+
+        IOSprefix = SharedPreferenceHelper.getString(this,"code",null);
+
         Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                 null, null, null, null);
+
+
 
         while (phones.moveToNext()) {
             String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
@@ -85,16 +100,17 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
             phone = phone.replace(")", "");
             phone = phone.replace("(", "");
 
-            if (!String.valueOf(phone.charAt(0)).equals("+"))
+            if (!String.valueOf(phone.charAt(0)).equals("+") && phone.length() > 6)
                 phone = IOSprefix + phone.substring(1);
 
                 UserObject mContact = new UserObject(name, phone);
 //                SharedPreferenceHelper.setString(this,"",);
-                getUserDetails(mContact);
-                contactList.add(mContact);
+//                getUserDetails(mContact);
 
+            contactList.add(mContact);
 
         }
+
     }
 
     private void getUserDetails(final UserObject mContact) {
@@ -122,6 +138,7 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
 
                         UserObject mUser = new UserObject(name, phone, key);
 
+
                         if (mContact.getPhone().equals(phone)) {
                             for (UserObject mContactIterator : contactList)
                                 if (mContactIterator.getPhone().equals(mUser.getPhone())) {
@@ -129,10 +146,12 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
                                 }
                         }
 
+
                         userList.add(mUser);
+
+
                         mUserListAdapter.notifyDataSetChanged();
 
-                        return;
                     }
                 }
 
@@ -144,6 +163,52 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
 
+    }
+
+
+    private void userFromDb(){
+        final DatabaseReference mUserDB = FirebaseDatabase.getInstance().getReference().child("users");
+        mUserDB.keepSynced(true);
+
+        mUserDB.orderByChild("phone").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    String phone = "",
+                            name = "",
+                            key = "";
+
+                    for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                        if (childSnapshot.child("phone").getValue() != null)
+                            phone = childSnapshot.child("phone").getValue().toString();
+                        if (childSnapshot.child("name").getValue() != null) {
+                            name = childSnapshot.child("name").getValue().toString();
+                            key = childSnapshot.getKey();
+                        }
+
+                        UserObject mUser = new UserObject(name, phone, key);
+
+
+                        for (UserObject mContactIterator : contactList)
+                            if (mContactIterator.getPhone().equals(mUser.getPhone())) {
+                            mUser.setName(mContactIterator.getName());
+                        }
+
+
+
+                        userList.add(mUser);
+
+
+                        mUserListAdapter.notifyDataSetChanged();
+
+                    }
+                }            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override

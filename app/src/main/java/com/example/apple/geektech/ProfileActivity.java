@@ -93,6 +93,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         DatabaseReference device_token = userReference.child(receiver_id).child("device_token");
 
+        Toast.makeText(this, device_token + "", Toast.LENGTH_SHORT).show();
+
         device_token.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

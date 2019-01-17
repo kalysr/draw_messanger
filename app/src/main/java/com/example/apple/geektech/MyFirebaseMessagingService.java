@@ -10,6 +10,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.example.apple.geektech.Utils.UserObject;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -23,17 +24,24 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
-        String phone = remoteMessage.getNotification().getBody().substring(0, 13);
-        String name = getUserName(phone);
+        if (remoteMessage.getData()!=null) {
+            String phone = remoteMessage.getData().toString().substring(7, 20);
+            String name = getUserName(phone);
 
-        String body = remoteMessage.getNotification().getBody()
-                .substring(13, remoteMessage.getNotification().getBody().length());
+//            String body = remoteMessage.getNotification().getBody()
+  //                  .substring(13, remoteMessage.getNotification().getBody().length());
 
-        sendNotification(name+body, remoteMessage.getNotification().getTitle());
+            sendNotification(name + " wants to send a message.", "Title" );
+
+            Log.e("TAG", "onMessageReceived: " + remoteMessage.getData().toString().substring(7, 20));
+        }
 
     }
 
     private void sendNotification(String messageBody, String title) {
+
+        Log.e("TAG", "sendNotification: "  );
+
         Intent intent = new Intent(this, MainActivity.class);
 
         Intent intentAccept = new Intent(this, MainActivity.class);
@@ -61,10 +69,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         .setSound(defaultSoundUri)
                         .setContentIntent(pendingIntent)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setChannelId(channelId)
                         .addAction(R.mipmap.ic_launcher, "Accept", pendingAcceptIntent)
                         .addAction(R.mipmap.ic_launcher, "Decline", pendingDeclineIntent);
-
-
 
 
         NotificationManager notificationManager =
@@ -74,7 +81,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(channelId,
                     "Channel human readable title",
-                    NotificationManager.IMPORTANCE_DEFAULT);
+                    NotificationManager.IMPORTANCE_HIGH);
             notificationManager.createNotificationChannel(channel);
         }
 
