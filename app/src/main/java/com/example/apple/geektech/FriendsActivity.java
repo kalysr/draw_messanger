@@ -75,21 +75,20 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
     }
 
 
-    void getContactList() {
-        String IOSprefix="";
+   public void getContactList() {
+        String IOSprefix = "";
 
         try {
             IOSprefix = getCountryISO();
-            SharedPreferenceHelper.setString(this,"code",IOSprefix);
-        } catch (NullPointerException e){
+            SharedPreferenceHelper.setString(this, "code", IOSprefix);
+        } catch (NullPointerException e) {
 
         }
 
-        IOSprefix = SharedPreferenceHelper.getString(this,"code",null);
+        IOSprefix = SharedPreferenceHelper.getString(this, "code", null);
 
         Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                 null, null, null, null);
-
 
 
         while (phones.moveToNext()) {
@@ -103,8 +102,7 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
             if (!String.valueOf(phone.charAt(0)).equals("+") && phone.length() > 6)
                 phone = IOSprefix + phone.substring(1);
 
-                UserObject mContact = new UserObject(name, phone);
-//                SharedPreferenceHelper.setString(this,"",);
+            UserObject mContact = new UserObject(name, phone);
 //                getUserDetails(mContact);
 
             contactList.add(mContact);
@@ -166,7 +164,7 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
     }
 
 
-    private void userFromDb(){
+    private void userFromDb() {
         final DatabaseReference mUserDB = FirebaseDatabase.getInstance().getReference().child("users");
         mUserDB.keepSynced(true);
 
@@ -186,23 +184,22 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
                             key = childSnapshot.getKey();
                         }
 
+
                         UserObject mUser = new UserObject(name, phone, key);
 
-
                         for (UserObject mContactIterator : contactList)
-                            if (mContactIterator.getPhone().equals(mUser.getPhone())) {
-                            mUser.setName(mContactIterator.getName());
-                        }
+                            if (phone.equals(mContactIterator.getPhone())) {
+                                mUser.setName(mContactIterator.getName());
+                                SharedPreferenceHelper.setString(FriendsActivity.this,mUser.getPhone(),mUser.getName());
 
-
+                            }
 
                         userList.add(mUser);
-
-
-                        mUserListAdapter.notifyDataSetChanged();
-
                     }
-                }            }
+                    mUserListAdapter.notifyDataSetChanged();
+                    return;
+                }
+            }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {

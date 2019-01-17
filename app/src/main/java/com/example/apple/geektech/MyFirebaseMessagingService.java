@@ -6,17 +6,20 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.provider.ContactsContract;
 import android.support.v4.app.NotificationCompat;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.example.apple.geektech.Utils.CountryToPhonePrfix;
+import com.example.apple.geektech.Utils.SharedPreferenceHelper;
 import com.example.apple.geektech.Utils.UserObject;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-
-import static com.example.apple.geektech.FriendsActivity.contactList;
 
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
@@ -24,23 +27,20 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
-        if (remoteMessage.getData()!=null) {
-            String phone = remoteMessage.getData().toString().substring(7, 20);
-            String name = getUserName(phone);
+        if (remoteMessage.getData() != null) {
 
-//            String body = remoteMessage.getNotification().getBody()
-  //                  .substring(13, remoteMessage.getNotification().getBody().length());
+            String body = remoteMessage.getData().get("phone");
+            String phone = body.substring(0, body.indexOf(" "));
+            String name = SharedPreferenceHelper.getString(getApplicationContext(), phone, phone);
 
-            sendNotification(name + " wants to send a message.", "Title" );
+            sendNotification(name + " wants to send a message.", "Request");
 
-            Log.e("TAG", "onMessageReceived: " + remoteMessage.getData().toString().substring(7, 20));
         }
 
     }
 
     private void sendNotification(String messageBody, String title) {
 
-        Log.e("TAG", "sendNotification: "  );
 
         Intent intent = new Intent(this, MainActivity.class);
 
@@ -86,15 +86,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
-    }
-
-    public static String getUserName(String phone) {
-        for (UserObject mContactIterator : contactList)
-            if (mContactIterator.getPhone().equals(phone))
-                return mContactIterator.getName();
-
-        return phone;
-
     }
 
 }
