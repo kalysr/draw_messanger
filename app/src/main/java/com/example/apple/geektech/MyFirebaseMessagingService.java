@@ -10,33 +10,37 @@ import android.database.Cursor;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
-import android.provider.ContactsContract;
 import android.support.v4.app.NotificationCompat;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
-import com.example.apple.geektech.Utils.CountryToPhonePrfix;
 import com.example.apple.geektech.Utils.SharedPreferenceHelper;
-import com.example.apple.geektech.Utils.UserObject;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
+    String sender_token="";
+
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
         if (remoteMessage.getData() != null) {
-
             String body = remoteMessage.getData().get("phone");
-            String phone = body.substring(0, body.indexOf(" "));
-            String name = SharedPreferenceHelper.getString(getApplicationContext(), phone, phone);
-
-            sendNotification(name + " wants to send a message.", "Request");
+            if (remoteMessage.getData().get("sender_token") == null){
+                String phone = body.substring(0, body.indexOf(" "));
+                String name = SharedPreferenceHelper.getString(getApplicationContext(), phone, phone);
+                body = name + " wants to send a message.";
+                sender_token = remoteMessage.getData().get("sender_token");
+                Log.e("TAG", "onMessageReceived: not  "+body );
+            }
+            else {
+                body = remoteMessage.getData().get("body");
+                Log.e("TAG", "onMessageReceived: "+body );
+            }
+            sendNotification(body, "Request");
 
         }
-
     }
 
     private void sendNotification(String messageBody, String title) {
@@ -46,8 +50,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Intent intentAccept = new Intent(this, MainActivity.class);
         intentAccept.putExtra("accepted", true);
+        intentAccept.putExtra("sender_token", sender_token);
         Intent intentDecline = new Intent(this, MainActivity.class);
         intentDecline.putExtra("accepted", false);
+        intentDecline.putExtra("sender_token", sender_token);
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 

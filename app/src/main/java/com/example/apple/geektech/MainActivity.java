@@ -24,7 +24,12 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
@@ -35,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     ImageButton clearButton, redrawBtn, undoButton, colorPickerBtn
             ,gridBtn, contactBtn,historyBtn,onlineContactsBtn, signOut;
     String UserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
     UserPath selfUserPath = null;
     public static String USER_ID = "USER_ID";
     boolean pressed = true;
@@ -87,7 +93,8 @@ public class MainActivity extends AppCompatActivity {
         if (getIntent().hasExtra("accepted")){
             boolean accepted = getIntent().getBooleanExtra("accepted",false);
             Toast.makeText(this,"Friend request has been "+(accepted?"accepted":"declined"),Toast.LENGTH_LONG).show();
-//            NotificationApi.send(this,new NotificationApi.Data("Request has"));
+            NotificationApi.send(this,new NotificationApi.Data("Request","Request has accepted",
+                    getIntent().getStringExtra("sender_token"),null));
 
         }
     }
@@ -378,6 +385,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
 
 }

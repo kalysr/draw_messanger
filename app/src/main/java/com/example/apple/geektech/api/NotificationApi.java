@@ -30,11 +30,13 @@ public class NotificationApi {
         private String title;
         private String body;
         private String recieverToken;
+        private String senderToken;
 
-        public Data(String title, String body, String recieverToken) {
+        public Data(String title, String body, String recieverToken, String senderToken) {
             this.title = title;
             this.body = body;
             this.recieverToken = recieverToken;
+            this.senderToken = senderToken;
         }
 
         public Map toMap() {

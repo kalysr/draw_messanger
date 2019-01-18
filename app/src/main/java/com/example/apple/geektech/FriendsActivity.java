@@ -25,6 +25,7 @@ import com.example.apple.geektech.Utils.SharedPreferenceHelper;
 import com.example.apple.geektech.Utils.UserListAdapter;
 import com.example.apple.geektech.Utils.UserObject;
 import com.google.android.gms.common.util.SharedPreferencesUtils;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,9 +34,12 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -50,6 +54,8 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
     public Context context;
     static ArrayList<UserObject> userList;
     static ArrayList<UserObject> contactList;
+    DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+    String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
 
     @Override
@@ -110,7 +116,7 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
         }
 
     }
-
+/*
     private void getUserDetails(final UserObject mContact) {
 
         final DatabaseReference mUserDB = FirebaseDatabase.getInstance().getReference().child("users");
@@ -162,7 +168,7 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
         });
 
     }
-
+*/
 
     private void userFromDb() {
         final DatabaseReference mUserDB = FirebaseDatabase.getInstance().getReference().child("users");
@@ -174,7 +180,10 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
                 if (dataSnapshot.exists()) {
                     String phone = "",
                             name = "",
-                            key = "";
+                            key = "",
+                            lastSeen = "offline",
+                                    lastSeenTime = "",
+                    lastSeenDate="";
 
                     for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
                         if (childSnapshot.child("phone").getValue() != null)
@@ -182,10 +191,27 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
                         if (childSnapshot.child("name").getValue() != null) {
                             name = childSnapshot.child("name").getValue().toString();
                             key = childSnapshot.getKey();
+
+                            Log.e(TAG, "onDataChange: Last seen CC " + phone);
+
+                            if (childSnapshot.child("userState").getValue() != null){
+                                Log.e(TAG, "onDataChange: User "+ phone );
+                                lastSeenDate = (String) childSnapshot.child("userState").child("date").getValue();
+                                lastSeen = (String) childSnapshot.child("userState").child("state").getValue();
+
+                           //     Log.e(TAG, "onDataChange: Last Seen "+ lastSeen );
+                                lastSeenTime = (String) childSnapshot.child("userState").child("time").getValue();
+
+                                if (lastSeen.equals("offline"))
+                                    lastSeen = lastSeenTime +" "+lastSeenDate;
+                            }
+                            else lastSeen="offline";
+
                         }
 
 
-                        UserObject mUser = new UserObject(name, phone, key);
+
+                        UserObject mUser = new UserObject(name, phone, key,lastSeen);
 
                         for (UserObject mContactIterator : contactList)
                             if (phone.equals(mContactIterator.getPhone())) {
@@ -260,5 +286,50 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onClick(View v) {
 
+    }
+
+    public void updateUserStatus(String state){
+        String saveCurrentTime,saveCurrentDate;
+        Calendar calendar =  Calendar.getInstance();
+
+        SimpleDateFormat currentDate = new SimpleDateFormat("dd:MM:yyyy");
+        saveCurrentDate = currentDate.format(calendar.getTime());
+
+        SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm");
+        saveCurrentTime = currentTime.format(calendar.getTime());
+
+        HashMap<String,Object> onlineState = new HashMap<>();
+        onlineState.put("time",saveCurrentTime);
+        onlineState.put("date",saveCurrentDate);
+        onlineState.put("state",state);
+
+        rootRef.child("users").child(userId).child("userState").
+                updateChildren(onlineState);
+
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        updateUserStatus("online");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (userId!=null) {
+            updateUserStatus("offline");
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (userId!=null) {
+            updateUserStatus("offline");
+        }
     }
 }

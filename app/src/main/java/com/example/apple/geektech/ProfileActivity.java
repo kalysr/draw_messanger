@@ -92,6 +92,8 @@ public class ProfileActivity extends AppCompatActivity {
     private void sendFriendRequest() {
 
         DatabaseReference device_token = userReference.child(receiver_id).child("device_token");
+        final DatabaseReference sender_token = userReference.child(sender_id).child("device_token");
+
 
         Toast.makeText(this, device_token + "", Toast.LENGTH_SHORT).show();
 
@@ -105,7 +107,8 @@ public class ProfileActivity extends AppCompatActivity {
                 NotificationApi.send(ProfileActivity.this,new NotificationApi.Data(
                         title,
                         body,
-                        dataSnapshot.getValue().toString()
+                        dataSnapshot.getValue().toString(),
+                        sender_token.toString()
                         ));
             }
 

@@ -43,6 +43,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
     public void onBindViewHolder(@NonNull final UserListViewHolder userListViewHolder, final int i) {
         userListViewHolder.mName.setText(userList.get(i).getName());
         userListViewHolder.mPhone.setText(userList.get(i).getPhone());
+        userListViewHolder.mlastSeen.setText(userList.get(i).getStatus());
 
 
         userListViewHolder.parentLayout.setOnClickListener(new View.OnClickListener() {
@@ -67,13 +68,14 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
     }
 
     public class UserListViewHolder extends RecyclerView.ViewHolder {
-        TextView mName, mPhone;
+        TextView mName, mPhone, mlastSeen;
         LinearLayout parentLayout;
         public UserListViewHolder(@NonNull View itemView) {
             super(itemView);
 
             mName = itemView.findViewById(R.id.userNameTV);
             mPhone = itemView.findViewById(R.id.userPhoneTV);
+            mlastSeen = itemView.findViewById(R.id.lastSeen_TV);
             parentLayout = itemView.findViewById(R.id.userItem);
         }
     }
