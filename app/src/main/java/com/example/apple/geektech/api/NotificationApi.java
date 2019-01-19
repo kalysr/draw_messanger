@@ -25,6 +25,15 @@ public class NotificationApi {
         }
         notificationReference.push().setValue(data.toMap());
     }
+    public static void send(String receiverToken,int type, Map data) {
+        if (notificationReference == null) {
+            notificationReference = FirebaseDatabase.getInstance().getReference().child("Notifications");
+            notificationReference.keepSynced(true);
+        }
+        data.put("receiverToken", receiverToken);
+        data.put("type", String.valueOf(type));
+        notificationReference.push().setValue(data);
+    }
 
     public static class Data {
         private String title;

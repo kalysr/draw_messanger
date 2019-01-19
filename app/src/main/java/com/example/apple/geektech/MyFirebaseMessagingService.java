@@ -17,33 +17,64 @@ import com.example.apple.geektech.Utils.SharedPreferenceHelper;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.Map;
+
+import okhttp3.internal.Internal;
+
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     String sender_token="";
 
+    public static final int TYPE_INVITE_REQUEST = 1;
+    public static final int TYPE_NOTIFICATION = 2;
+    public static final int TYPE_INVITE_ACCEPTED = 3;
+    public static final int TYPE_INVITE_DECLINED = 4;
+
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
         if (remoteMessage.getData() != null) {
-            String body = remoteMessage.getData().get("phone");
-            if (remoteMessage.getData().get("sender_token") == null){
-                String phone = body.substring(0, body.indexOf(" "));
-                String name = SharedPreferenceHelper.getString(getApplicationContext(), phone, phone);
-                body = name + " wants to send a message.";
-                sender_token = remoteMessage.getData().get("sender_token");
-                Log.e("TAG", "onMessageReceived: not  "+body );
-            }
-            else {
-                body = remoteMessage.getData().get("body");
-                Log.e("TAG", "onMessageReceived: "+body );
-            }
-            sendNotification(body, "Request");
 
+            Map data = remoteMessage.getData();
+            int type = Integer.valueOf(data.get("type").toString());
+            String phone;
+            String name;
+            String body;
+
+            Log.e("TAG", "type:" +data.get("type").toString());
+
+            switch (type){
+                case TYPE_INVITE_REQUEST:
+                    phone = data.get("phone").toString();
+                    name = SharedPreferenceHelper.getString(getApplicationContext(), phone, phone);
+                    body = name + " wants to send a message.";
+                    sender_token = data.get("sender_token").toString();
+                    Log.e("TAG", "onMessageReceived: not  "+body );
+                    sendNotification(body, "Notification",TYPE_INVITE_REQUEST);
+                    break;
+                case TYPE_INVITE_ACCEPTED:
+                    phone = data.get("phone").toString();
+                    name = SharedPreferenceHelper.getString(getApplicationContext(), phone, phone);
+                    body = name + " has been accepted.";
+                    sendNotification(body, "Notification", TYPE_INVITE_ACCEPTED);
+                    break;
+                case TYPE_INVITE_DECLINED:
+                    phone = data.get("phone").toString();
+                    name = SharedPreferenceHelper.getString(getApplicationContext(), phone, phone);
+                    body = name + " has been declined.";
+                    sendNotification(body, "Notification",TYPE_INVITE_ACCEPTED);
+                    break;
+                case TYPE_NOTIFICATION:
+                    sendNotification(data.get("body").toString(), data.get("title").toString(),TYPE_NOTIFICATION);
+                    break;
+            }
+        }else {
+            Log.e("TAG", "onMessageReceived: data  NULL" );
         }
     }
 
-    private void sendNotification(String messageBody, String title) {
+    private void sendNotification(String messageBody, String title, int type) {
 
 
         Intent intent = new Intent(this, MainActivity.class);
@@ -78,6 +109,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         .setChannelId(channelId)
                         .addAction(R.mipmap.ic_launcher, "Accept", pendingAcceptIntent)
                         .addAction(R.mipmap.ic_launcher, "Decline", pendingDeclineIntent);
+
 
 
         NotificationManager notificationManager =

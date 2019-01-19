@@ -30,6 +30,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Map;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
@@ -90,12 +91,22 @@ public class MainActivity extends AppCompatActivity {
             setTitle(getIntent().getStringExtra("name"));
 
         }
-        if (getIntent().hasExtra("accepted")){
-            boolean accepted = getIntent().getBooleanExtra("accepted",false);
-            Toast.makeText(this,"Friend request has been "+(accepted?"accepted":"declined"),Toast.LENGTH_LONG).show();
-            NotificationApi.send(this,new NotificationApi.Data("Request","Request has accepted",
-                    getIntent().getStringExtra("sender_token"),null));
+        if(getIntent().hasExtra("accepted")) {
+            Map data = new HashMap();
+            data.put("phone", FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
+            data.put("uid", FirebaseAuth.getInstance().getCurrentUser().getUid());
 
+            boolean accepted = getIntent().getBooleanExtra("accepted", false);
+            int type = 0;
+            if (accepted) {
+                type = MyFirebaseMessagingService.TYPE_INVITE_ACCEPTED;
+            } else {
+                type = MyFirebaseMessagingService.TYPE_INVITE_DECLINED;
+            }
+
+            Toast.makeText(this, "Friend request has been " + (accepted ? "accepted" : "declined"), Toast.LENGTH_LONG).show();
+            String receiverToken = getIntent().getStringExtra("sender_token");
+            NotificationApi.send(receiverToken, type, data);
         }
     }
 

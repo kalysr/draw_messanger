@@ -21,6 +21,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -91,33 +95,19 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void sendFriendRequest() {
 
-        DatabaseReference device_token = userReference.child(receiver_id).child("device_token");
-        final DatabaseReference sender_token = userReference.child(sender_id).child("device_token");
 
 
-        Toast.makeText(this, device_token + "", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, receiver_id + "", Toast.LENGTH_SHORT).show();
 
-        device_token.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        String phoneNumber = mAuth.getCurrentUser().getPhoneNumber();
+        String body = phoneNumber +" wants to send a message.";
 
-                String title = "Notification";
-                String phoneNumber = mAuth.getCurrentUser().getPhoneNumber();
-                String body = phoneNumber +" wants to send a message.";
-                NotificationApi.send(ProfileActivity.this,new NotificationApi.Data(
-                        title,
-                        body,
-                        dataSnapshot.getValue().toString(),
-                        sender_token.toString()
-                        ));
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
+        Map data = new HashMap();
+        data.put("title", "Notification");
+        data.put("phone", phoneNumber);
+        data.put("body", body);
+        data.put("sender_token", FirebaseInstanceId.getInstance().getToken());
+        NotificationApi.send( receiver_id,MyFirebaseMessagingService.TYPE_INVITE_REQUEST,data);
 
 
 

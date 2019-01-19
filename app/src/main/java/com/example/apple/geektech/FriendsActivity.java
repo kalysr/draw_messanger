@@ -17,6 +17,7 @@ import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -24,6 +25,7 @@ import com.example.apple.geektech.Utils.CountryToPhonePrfix;
 import com.example.apple.geektech.Utils.SharedPreferenceHelper;
 import com.example.apple.geektech.Utils.UserListAdapter;
 import com.example.apple.geektech.Utils.UserObject;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.common.util.SharedPreferencesUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -56,6 +58,7 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
     static ArrayList<UserObject> contactList;
     DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
     String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("users").child(userId);
 
 
     @Override
@@ -74,14 +77,16 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
                 ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             getPermissions();
         } else {
+            updateUserStatus("online");
             getContactList();
             userFromDb();
+
         }
 
     }
 
 
-   public void getContactList() {
+    public void getContactList() {
         String IOSprefix = "";
 
         try {
@@ -116,6 +121,9 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
         }
 
     }
+
+    //START SECTION
+
 /*
     private void getUserDetails(final UserObject mContact) {
 
@@ -170,6 +178,9 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
     }
 */
 
+
+//END SECTION
+
     private void userFromDb() {
         final DatabaseReference mUserDB = FirebaseDatabase.getInstance().getReference().child("users");
         mUserDB.keepSynced(true);
@@ -182,48 +193,56 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
                             name = "",
                             key = "",
                             lastSeen = "offline",
-                                    lastSeenTime = "",
-                    lastSeenDate="";
+                            lastSeenTime = "",
+                            lastSeenDate = "";
 
                     for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
                         if (childSnapshot.child("phone").getValue() != null)
                             phone = childSnapshot.child("phone").getValue().toString();
                         if (childSnapshot.child("name").getValue() != null) {
                             name = childSnapshot.child("name").getValue().toString();
-                            key = childSnapshot.getKey();
+                            key = childSnapshot.child("device_token").getValue().toString();
 
-                            Log.e(TAG, "onDataChange: Last seen CC " + phone);
-
-                            if (childSnapshot.child("userState").getValue() != null){
-                                Log.e(TAG, "onDataChange: User "+ phone );
+                            if (childSnapshot.child("userState").getValue() != null) {
+                                Log.e(TAG, "onDataChange: User " + phone);
                                 lastSeenDate = (String) childSnapshot.child("userState").child("date").getValue();
+                                Log.e(TAG, "onDataChange: LastSeenDate  " + lastSeenDate);
                                 lastSeen = (String) childSnapshot.child("userState").child("state").getValue();
 
-                           //     Log.e(TAG, "onDataChange: Last Seen "+ lastSeen );
                                 lastSeenTime = (String) childSnapshot.child("userState").child("time").getValue();
 
-                                if (lastSeen.equals("offline"))
-                                    lastSeen = lastSeenTime +" "+lastSeenDate;
-                            }
-                            else lastSeen="offline";
+                                if (lastSeen.equals("offline")) {
+                                    lastSeen = lastSeenTime + " " + lastSeenDate;
+                                }
+                            } else lastSeen = "offline";
 
                         }
 
+                        UserObject mUser = new UserObject(name, phone, key, lastSeen);
 
-
-                        UserObject mUser = new UserObject(name, phone, key,lastSeen);
-
-                        for (UserObject mContactIterator : contactList)
-                            if (phone.equals(mContactIterator.getPhone())) {
+                        boolean contactExist = false;
+                        for (UserObject mContactIterator : contactList) {
+                            if (mUser.getPhone().equals(mContactIterator.getPhone())) {
+                                contactExist = true;
                                 mUser.setName(mContactIterator.getName());
-                                SharedPreferenceHelper.setString(FriendsActivity.this,mUser.getPhone(),mUser.getName());
-
+                                SharedPreferenceHelper.setString(FriendsActivity.this, mUser.getPhone(), mUser.getName());
                             }
+                        }
 
-                        userList.add(mUser);
+                        boolean exist = false;
+                        for (UserObject mContactIterator : userList) {
+                            if (mUser.getPhone().equals(mContactIterator.getPhone())) {
+                                exist = true;
+                                break;
+                            }
+                        }
+
+                        if (!exist && contactExist) {
+                            userList.add(mUser);
+                        }
                     }
                     mUserListAdapter.notifyDataSetChanged();
-                    return;
+
                 }
             }
 
@@ -268,6 +287,7 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
 
         mUserListLayoutManager = new LinearLayoutManager(context, LinearLayout.VERTICAL, false);
         mUserList.setLayoutManager(mUserListLayoutManager);
+
     }
 
     private String getCountryISO() {
@@ -288,20 +308,20 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
 
     }
 
-    public void updateUserStatus(String state){
-        String saveCurrentTime,saveCurrentDate;
-        Calendar calendar =  Calendar.getInstance();
+    public void updateUserStatus(String state) {
+        String saveCurrentTime, saveCurrentDate;
+        Calendar calendar = Calendar.getInstance();
 
         SimpleDateFormat currentDate = new SimpleDateFormat("dd:MM:yyyy");
         saveCurrentDate = currentDate.format(calendar.getTime());
 
-        SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm");
+        SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
         saveCurrentTime = currentTime.format(calendar.getTime());
 
-        HashMap<String,Object> onlineState = new HashMap<>();
-        onlineState.put("time",saveCurrentTime);
-        onlineState.put("date",saveCurrentDate);
-        onlineState.put("state",state);
+        HashMap<String, Object> onlineState = new HashMap<>();
+        onlineState.put("time", saveCurrentTime);
+        onlineState.put("date", saveCurrentDate);
+        onlineState.put("state", state);
 
         rootRef.child("users").child(userId).child("userState").
                 updateChildren(onlineState);
@@ -320,7 +340,7 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
     protected void onStop() {
         super.onStop();
 
-        if (userId!=null) {
+        if (userId != null) {
             updateUserStatus("offline");
         }
     }
@@ -328,7 +348,7 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (userId!=null) {
+        if (userId != null) {
             updateUserStatus("offline");
         }
     }
