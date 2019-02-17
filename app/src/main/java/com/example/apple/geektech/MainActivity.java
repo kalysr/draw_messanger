@@ -5,9 +5,9 @@ import android.graphics.Color;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -20,27 +20,24 @@ import com.example.apple.geektech.paint.GridLayer;
 import com.example.apple.geektech.paint.PaintView;
 import com.example.apple.geektech.paint.UserPath;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     PaintView paintView;
-    ImageButton clearButton, redrawBtn, undoButton, colorPickerBtn
-            ,gridBtn, contactBtn,historyBtn,onlineContactsBtn, signOut;
+    ImageButton clearButton, redrawBtn, undoButton, colorPickerBtn, gridBtn, contactBtn, historyBtn, onlineContactsBtn, signOut;
     String UserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    String sender_id = "";
     DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
     UserPath selfUserPath = null;
     public static String USER_ID = "USER_ID";
@@ -54,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
         FirebaseHelper.init(this);
         init();
         initUserId();
-        initEvents();
         getIncomingIntent();
+        initEvents();
 
 
     }
@@ -71,11 +68,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     private void init() {
         paintView = findViewById(R.id.main_paint_view);
         clearButton = findViewById(R.id.clear_canvas);
-        redrawBtn = findViewById(R.id.redraw);
+        redrawBtn = findViewById(R.id.redrawBtn);
         undoButton = findViewById(R.id.undo_button);
         colorPickerBtn = findViewById(R.id.color_picker);
         gridBtn = findViewById(R.id.gridBtn);
@@ -84,14 +80,24 @@ public class MainActivity extends AppCompatActivity {
         historyBtn = findViewById(R.id.historyBtn);
         signOut = findViewById(R.id.signOut);
 
+        clearButton.setOnClickListener(this);
+        colorPickerBtn.setOnClickListener(this);
+        contactBtn.setOnClickListener(this);
+        gridBtn.setOnClickListener(this);
+        historyBtn.setOnClickListener(this);
+        redrawBtn.setOnClickListener(this);
+        onlineContactsBtn.setOnClickListener(this);
+        signOut.setOnClickListener(this);
+        undoButton.setOnClickListener(this);
+
     }
 
-    private void getIncomingIntent(){
-        if (getIntent().hasExtra("name")){
+    private void getIncomingIntent() {
+        if (getIntent().hasExtra("name")) {
             setTitle(getIntent().getStringExtra("name"));
-
+            sender_id = getIntent().getStringExtra("receiver_id");
         }
-        if(getIntent().hasExtra("accepted")) {
+        if (getIntent().hasExtra("accepted")) {
             Map data = new HashMap();
             data.put("phone", FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
             data.put("uid", FirebaseAuth.getInstance().getCurrentUser().getUid());
@@ -111,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initEvents() {
-
         final DatabaseReference mDatabase = FirebaseHelper.getInstance().getDatabase();
 
         selfUserPath = new UserPath(UserId, paintView);
@@ -157,33 +162,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        FirebaseHelper.getInstance().getDatabase().child("users").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                if (!dataSnapshot.getKey().equals(UserId))
-                    addUserEvents(dataSnapshot.getKey(), dataSnapshot);
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+        addUserEvents(sender_id);
 
         mDatabase.child("users").child(UserId).child("config").addValueEventListener(new ValueEventListener() {
             @Override
@@ -207,86 +186,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        gridBtn.setOnClickListener(new View.OnClickListener() {
+        mDatabase.child("users").child(UserId).child("connected_uid").addValueEventListener(new ValueEventListener() {
             @Override
-            public void onClick(View v) {
-
-                if (pressed) {
-                    pressed = false;
-                    gridBtn.setImageResource(R.drawable.ic_grid_off_black_24dp);
-                    paintView.addLayer(new GridLayer("grid", paintView));
-
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Object object = dataSnapshot.getValue();
+                if (object != null) {
+                    Log.d("TAG", "onDataChange: " + object.toString());
                 } else {
-                    pressed = true;
-                    gridBtn.setImageResource(R.drawable.ic_grid_on_black_24dp);
-                    paintView.removeLayer(paintView.getLayer("grid"));
-
+                    Log.d("TAG", "onDataChange: object is null");
+                }
+                if (object != null && !object.toString().equals(UserId)) {
+                    addUserEvents(object.toString());
                 }
             }
-        });
 
-
-        contactBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, FriendsActivity.class));
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
             }
         });
 
-
-        onlineContactsBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,OnlineContactsActivity.class));
-            }
-        });
-
-
-        signOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(MainActivity.this,LoginActivity.class));
-            }
-        });
-
-        clearButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                selfUserPath.clearCanvas();
-                selfUserPath.clearFrames();
-                paintView.clearAllUserCanvas();
-            }
-        });
-
-        redrawBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                selfUserPath.redrawFrames();
-            }
-        });
-
-        undoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                selfUserPath.undo();
-            }
-        });
-
-        colorPickerBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openColorPicker();
-            }
-        });
-
-        historyBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,HistoryActivity.class));
-            }
-        });
     }
 
     public void openColorPicker() {
@@ -313,17 +232,14 @@ public class MainActivity extends AppCompatActivity {
         double y = (299 * Color.red(color) + 587 * Color.green(color) + 114 * Color.blue(color)) / 1000;
         if (y >= 128) {
             colorPickerBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_colorize_black_24dp));
-        }else {
+        } else {
             colorPickerBtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_colorize_white_24dp));
         }
         colorPickerBtn.setBackgroundDrawable(footerBackground);
     }
 
-    private void addUserEvents(final String userId, DataSnapshot dataSnapshot) {
+    private void addUserEvents(final String userId) {
         final DatabaseReference mDatabase = FirebaseHelper.getInstance().getDatabase();
-
-
-
         final UserPath userPath = new UserPath(userId, paintView);
         paintView.addLayer(userPath);
 
@@ -355,9 +271,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
         mDatabase.child("users").child(userId).child("data").setValue("");
-
+        mDatabase.child("users").child(userId).child("connected_uid").setValue(this.UserId);
         mDatabase.child("users").child(userId).child("data").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -375,7 +290,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
         mDatabase.child("users").child(userId).child("config").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -397,4 +311,45 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.gridBtn:
+                if (pressed) {
+                    pressed = false;
+                    gridBtn.setImageResource(R.drawable.ic_grid_off_black_24dp);
+                    paintView.addLayer(new GridLayer("grid", paintView));
+
+                } else {
+                    pressed = true;
+                    gridBtn.setImageResource(R.drawable.ic_grid_on_black_24dp);
+                    paintView.removeLayer(paintView.getLayer("grid"));
+                }
+                break;
+            case R.id.contactBtn:
+                startActivity(new Intent(MainActivity.this, FriendsActivity.class));
+                break;
+            case R.id.signOut:
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                break;
+            case R.id.clear_canvas:
+                selfUserPath.clearCanvas();
+                selfUserPath.clearFrames();
+                paintView.clearAllUserCanvas();
+                break;
+            case R.id.redrawBtn:
+                selfUserPath.redrawFrames();
+                break;
+            case R.id.undo_button:
+                selfUserPath.undo();
+                break;
+            case R.id.color_picker:
+                openColorPicker();
+                break;
+            case R.id.historyBtn:
+                startActivity(new Intent(MainActivity.this, HistoryActivity.class));
+                break;
+        }
+    }
 }

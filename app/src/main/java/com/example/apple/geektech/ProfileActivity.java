@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.apple.geektech.R;
+import com.example.apple.geektech.Utils.SharedPreferenceHelper;
 import com.example.apple.geektech.api.NotificationApi;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -36,6 +37,7 @@ public class ProfileActivity extends AppCompatActivity {
     DatabaseReference friendRequestReference, notificationsReference;
     private String CURRENT_STATE;
     String receiver_id;
+    String receiver_uid;
     String sender_id;
     FirebaseAuth mAuth;
 
@@ -106,7 +108,9 @@ public class ProfileActivity extends AppCompatActivity {
         data.put("title", "Notification");
         data.put("phone", phoneNumber);
         data.put("body", body);
-        data.put("sender_token", FirebaseInstanceId.getInstance().getToken());
+        data.put("id",mAuth.getCurrentUser().getUid());
+        Log.e("TAG", "sendFriendRequest: " +mAuth.getCurrentUser().getUid() );
+        data.put("sender_token", SharedPreferenceHelper.getString(ProfileActivity.this,"token","no token"));
         NotificationApi.send( receiver_id,MyFirebaseMessagingService.TYPE_INVITE_REQUEST,data);
 
 
@@ -129,6 +133,9 @@ public class ProfileActivity extends AppCompatActivity {
                                     }
                                     Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
                                     intent.putExtra("name", getIntent().getStringExtra("name"));
+                                    intent.putExtra("receiver_id", receiver_uid);
+                                    Log.d("TAG", "onComplete:receiver_id =  "+receiver_id);
+                                    Log.d("TAG", "onComplete:sender_id =  "+sender_id);
                                     startActivity(intent);
                                     finish();
                                 }
@@ -170,9 +177,8 @@ public class ProfileActivity extends AppCompatActivity {
         if (getIntent().hasExtra("name")) {
             contactNameTV.setText(getIntent().getStringExtra("name"));
             receiver_id = getIntent().getStringExtra("receiver_id");
-
+            receiver_uid = getIntent().getStringExtra("uid");
             Toast.makeText(this, receiver_id + "", Toast.LENGTH_SHORT).show();
-
         }
     }
 }

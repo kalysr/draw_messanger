@@ -2,16 +2,17 @@ package com.example.apple.geektech.Utils;
 
 public class UserObject {
         String  name;
-        String ref_key;
+        String token;
+        String uid;
     String phone;
     String status;
-
+    int width,height;
     public String getStatus() {
         return status;
     }
 
-    public String getRef_key() {
-        return ref_key;
+    public String getToken() {
+        return token;
     }
 
     public UserObject(String name, String phone) {
@@ -19,11 +20,14 @@ public class UserObject {
         this.phone = phone;
     }
 
-    public UserObject(String name, String phone,String ref_key, String lastSeen) {
-        this.ref_key = ref_key;
+    public UserObject(String name, String phone, String token, String uid, String lastSeen, int w, int h) {
+        this.token = token;
         this.status = lastSeen;
         this.name = name;
+        this.uid = uid;
         this.phone = phone;
+        this.width = w;
+        this.height = h;
     }
 
     public void setName(String name) {
@@ -33,4 +37,5 @@ public class UserObject {
     public String getName() {return name;}
 
     public String getPhone() {return phone;}
+    public String getUid() {return uid;}
 }

@@ -199,6 +199,9 @@ public class UserPath implements ILayer {
         }
         frames.add(frame);
         if (frame != null) {
+
+
+
             switch (frame.type) {
                 case PaintView.Frame.LINE_TO:
                     mLine.getPath().lineTo(frame.x1, frame.y1);

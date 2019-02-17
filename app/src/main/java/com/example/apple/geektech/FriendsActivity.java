@@ -70,7 +70,6 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
         contactList = new ArrayList<>();
 //        sharedPref = getCallingActivity()
 
-
         initializerRecycleView();
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED ||
@@ -80,7 +79,6 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
             updateUserStatus("online");
             getContactList();
             userFromDb();
-
         }
 
     }
@@ -101,16 +99,16 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
         Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                 null, null, null, null);
 
-
         while (phones.moveToNext()) {
             String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
             String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+
             phone = phone.replace(" ", "");
             phone = phone.replace("-", "");
             phone = phone.replace(")", "");
             phone = phone.replace("(", "");
 
-            if (!String.valueOf(phone.charAt(0)).equals("+") && phone.length() > 6)
+            if (phone.length() > 6 && !String.valueOf(phone.charAt(0)).equals("+"))
                 phone = IOSprefix + phone.substring(1);
 
             UserObject mContact = new UserObject(name, phone);
@@ -122,65 +120,6 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
 
     }
 
-    //START SECTION
-
-/*
-    private void getUserDetails(final UserObject mContact) {
-
-        final DatabaseReference mUserDB = FirebaseDatabase.getInstance().getReference().child("users");
-        mUserDB.keepSynced(true);
-
-        Query query = mUserDB.orderByChild("phone").equalTo(mContact.getPhone());
-
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    String phone = "",
-                            name = "",
-                            key = "";
-
-                    for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                        if (childSnapshot.child("phone").getValue() != null)
-                            phone = childSnapshot.child("phone").getValue().toString();
-                        if (childSnapshot.child("name").getValue() != null) {
-                            name = childSnapshot.child("name").getValue().toString();
-                            key = childSnapshot.getKey();
-                        }
-
-                        UserObject mUser = new UserObject(name, phone, key);
-
-
-                        if (mContact.getPhone().equals(phone)) {
-                            for (UserObject mContactIterator : contactList)
-                                if (mContactIterator.getPhone().equals(mUser.getPhone())) {
-                                    mUser.setName(mContactIterator.getName());
-                                }
-                        }
-
-
-                        userList.add(mUser);
-
-
-                        mUserListAdapter.notifyDataSetChanged();
-
-                    }
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-    }
-*/
-
-
-//END SECTION
-
     private void userFromDb() {
         final DatabaseReference mUserDB = FirebaseDatabase.getInstance().getReference().child("users");
         mUserDB.keepSynced(true);
@@ -191,17 +130,27 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
                 if (dataSnapshot.exists()) {
                     String phone = "",
                             name = "",
-                            key = "",
+                            token = "",
+                            uid = "",
                             lastSeen = "offline",
                             lastSeenTime = "",
                             lastSeenDate = "";
+                    int width = 0, height = 0;
+
 
                     for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                        Log.d(TAG, "FriendsAc: " + childSnapshot.getKey());
+                        uid = childSnapshot.getKey();
                         if (childSnapshot.child("phone").getValue() != null)
                             phone = childSnapshot.child("phone").getValue().toString();
                         if (childSnapshot.child("name").getValue() != null) {
                             name = childSnapshot.child("name").getValue().toString();
-                            key = childSnapshot.child("device_token").getValue().toString();
+                            token = childSnapshot.child("device_token").getValue().toString();
+
+                            if (childSnapshot.child("resolution").exists()) {
+                                width = Integer.valueOf(childSnapshot.child("resolution").child("width").toString());
+                                height = Integer.valueOf(childSnapshot.child("resolution").child("height").toString());
+                            }
 
                             if (childSnapshot.child("userState").getValue() != null) {
                                 Log.e(TAG, "onDataChange: User " + phone);
@@ -218,7 +167,7 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
 
                         }
 
-                        UserObject mUser = new UserObject(name, phone, key, lastSeen);
+                        UserObject mUser = new UserObject(name, phone, token, uid, lastSeen, width, height);
 
                         boolean contactExist = false;
                         for (UserObject mContactIterator : contactList) {

@@ -31,6 +31,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public static final int TYPE_INVITE_ACCEPTED = 3;
     public static final int TYPE_INVITE_DECLINED = 4;
 
+    String phone,name,body;
+
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
@@ -38,9 +40,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             Map data = remoteMessage.getData();
             int type = Integer.valueOf(data.get("type").toString());
-            String phone;
-            String name;
-            String body;
+
 
             Log.e("TAG", "type:" +data.get("type").toString());
 
@@ -106,9 +106,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                         .setSound(defaultSoundUri)
                         .setContentIntent(pendingIntent)
                         .setPriority(NotificationCompat.PRIORITY_HIGH)
-                        .setChannelId(channelId)
-                        .addAction(R.mipmap.ic_launcher, "Accept", pendingAcceptIntent)
-                        .addAction(R.mipmap.ic_launcher, "Decline", pendingDeclineIntent);
+                        .setChannelId(channelId);
+        if (type == 1 || type == 2){
+            notificationBuilder
+                    .addAction(R.mipmap.ic_launcher, "Accept", pendingAcceptIntent)
+                    .addAction(R.mipmap.ic_launcher, "Decline", pendingDeclineIntent);
+        }
 
 
 

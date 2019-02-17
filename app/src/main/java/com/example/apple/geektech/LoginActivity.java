@@ -1,11 +1,13 @@
 package com.example.apple.geektech;
 
 import android.content.Intent;
+import android.graphics.Point;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.apple.geektech.Library.App;
+import com.example.apple.geektech.Utils.SharedPreferenceHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -146,7 +149,7 @@ public class LoginActivity extends AppCompatActivity {
                             FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
                                 @Override
                                 public void onSuccess(InstanceIdResult instanceIdResult) {
-                                    String token = instanceIdResult.getToken();
+                                    final String token = instanceIdResult.getToken();
                                     usersReference.child(user.getUid()).child("device_token").setValue(token).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
@@ -156,10 +159,20 @@ public class LoginActivity extends AppCompatActivity {
                                                     @Override
                                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                                         if (dataSnapshot.exists()){
+                                                            Display display = getWindowManager().getDefaultDisplay();
+                                                            Point size = new Point();
+                                                            display.getSize(size);
+                                                            int width = size.x;
+                                                            int height = size.y;
+                                                            Map<String,Object> resolution = new HashMap<>();
+                                                            resolution.put("width",width);
+                                                            resolution.put("height",height);
                                                             Map<String,Object> userMap = new HashMap<>();
                                                             userMap.put("phone",user.getPhoneNumber());
                                                             userMap.put("name",user.getPhoneNumber());
+                                                            userMap.put("resolution",resolution);
                                                             mUserDB.updateChildren(userMap);
+                                                            SharedPreferenceHelper.setString(LoginActivity.this,"token",token);
                                                             Toast.makeText(LoginActivity.this, "Added", Toast.LENGTH_SHORT).show();
                                                         }
                                                         userIsLoggedIn();

@@ -45,15 +45,14 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
         userListViewHolder.mPhone.setText(userList.get(i).getPhone());
         userListViewHolder.mlastSeen.setText(userList.get(i).getStatus());
 
-
         userListViewHolder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-
                 Intent intent = new Intent(mContext,ProfileActivity.class);
                 intent.putExtra("name",userList.get(i).getName());
-                intent.putExtra("receiver_id",userList.get(i).getRef_key());
+                intent.putExtra("receiver_id",userList.get(i).getToken());
+                intent.putExtra("uid",userList.get(i).getUid());
 
                 mContext.startActivity(intent);
             }
