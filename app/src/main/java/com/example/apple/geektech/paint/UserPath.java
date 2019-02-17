@@ -1,8 +1,15 @@
 package com.example.apple.geektech.paint;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Point;
+import android.view.Display;
+import android.view.WindowManager;
+
+import com.example.apple.geektech.MainActivity;
+import com.example.apple.geektech.Utils.UserObject;
 
 import java.util.ArrayList;
 
@@ -10,6 +17,7 @@ public class UserPath implements ILayer {
     public static final String ACTION_CLEAR_CANVAS = "ACTION_CLEAR_CANVAS";
     public static final String ACTION_CLEAR_FRAMES = "ACTION_CLEAR_FRAMES";
     public static final String ACTION_UNDO = "ACTION_UNDO";
+    private Context context;
     private Line mLine;
 
     private ArrayList<Line> lines = new ArrayList<>(0);
@@ -70,6 +78,12 @@ public class UserPath implements ILayer {
     public UserPath(String id, PaintView paintView) {
         this.id = id;
         this.paintView = paintView;
+        init();
+    }
+    public UserPath(String id, PaintView paintView,Context context) {
+        this.id = id;
+        this.paintView = paintView;
+        this.context =context;
         init();
     }
 
@@ -198,9 +212,8 @@ public class UserPath implements ILayer {
             listener.onAddFrame(frame);
         }
         frames.add(frame);
+
         if (frame != null) {
-
-
 
             switch (frame.type) {
                 case PaintView.Frame.LINE_TO:

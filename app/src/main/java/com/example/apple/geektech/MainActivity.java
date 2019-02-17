@@ -1,14 +1,18 @@
 package com.example.apple.geektech;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -38,10 +42,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ImageButton clearButton, redrawBtn, undoButton, colorPickerBtn, gridBtn, contactBtn, historyBtn, onlineContactsBtn, signOut;
     String UserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
     String sender_id = "";
-    DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+    DatabaseReference rootRef =
+            FirebaseDatabase.getInstance().getReference();
     UserPath selfUserPath = null;
     public static String USER_ID = "USER_ID";
     boolean pressed = true;
+    private Integer sender_height;
+    private Integer sender_width;
 
 
     @Override
@@ -271,6 +278,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
+        mDatabase.child("users").child(sender_id).child("resolution").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    sender_height = Integer.valueOf(dataSnapshot.child("height").toString());
+                    sender_height = Integer.valueOf(dataSnapshot.child("width").toString());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
         mDatabase.child("users").child(userId).child("data").setValue("");
         mDatabase.child("users").child(userId).child("connected_uid").setValue(this.UserId);
         mDatabase.child("users").child(userId).child("data").addValueEventListener(new ValueEventListener() {
@@ -280,6 +302,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (object != null) {
                     PaintView.Frame frame = (PaintView.Frame) SerializationUtil.stringToObject(object.toString());
                     if (frame != null) {
+
+                        Display display = getWindowManager().getDefaultDisplay();
+                        Point size = new Point();
+                        display.getSize(size);
+                        int width = size.x;
+                        int height = size.y;
+                        if (sender_height > height) {
+                            float h_percent = frame.y1*100/sender_height;
+
+                            frame.y1 = height/100*h_percent;
+
+//                            frame.x1 = (float) sender_width;
+                        }
+
                         userPath.drawFrame(frame);
                     }
                 }
@@ -290,6 +326,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
+
         mDatabase.child("users").child(userId).child("config").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
