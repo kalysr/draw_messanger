@@ -47,8 +47,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     UserPath selfUserPath = null;
     public static String USER_ID = "USER_ID";
     boolean pressed = true;
-    private Integer sender_height;
-    private Integer sender_width;
+    private Integer sender_height = 0;
+    private Integer sender_width = 0;
 
 
     @Override
@@ -278,6 +278,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
+        mDatabase.child("users").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    Log.d("test", "onDataChange: " + dataSnapshot.getValue());
+               //     sender_height = Integer.valueOf(dataSnapshot.child(sender_id).child("resolution").child("height").getValue().toString());
+               //     sender_height = Integer.valueOf(dataSnapshot.child(sender_id).child("resolution").child("width").getValue().toString());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        // {Of2N2UzSNrTuqrSlHmxojZ3xpgF2={phone=+996703328363, name=+996703328363, device_token=cvwbr-idSFE:APA91bH-7XE7kioH4MdtoClGXOgzfN4t0MCkBMBhwNysTnsaL6d2yHXl7rAAur409BoriLhNE32IMV-YLrbIVLyQlzXs0N0_oD0FAzeMSlz7qxXRLOm8z9Tslpe5aqXGw1bkbGtVrTBZ, action=, data=}, connected_uid=Rqk1NMhp2cUs5FftNkeibisMZsI3, data=, DLA0lWIz0vRY3HTqVcbHY24rBYR2={userState={time=07:37 PM, date=17:02:2019, state=offline}, connected_uid=Rqk1NMhp2cUs5FftNkeibisMZsI3, action=, data=, phone=+996559969960, name=+996559969960, config={color=-16711917}, device_token=el7pNgt8ya0:APA91bHFerUPzRLieer-7FBorgxqtgtMsVJP4j-fzHrowshwJ5fidEx4NtipH7kWya0sTCaWIgrmmgjaWln6ql_za7LZj2r0lYsxsXAub5V5k9BONebtIcSBZIoS-jXmLIrqK5FzzHNH}, -LVUFaAnUSSyeuSoYmS1={action=, data=}, Rqk1NMhp2cUs5FftNkeibisMZsI3={userState={time=10:36 PM, date=17:02:2019, state=online}, connected_uid=r3Ne2rSAFZPAa2DCOvTQfmvM9ND2, action=, data=, phone=+996709770095, name=+996709770095, config={color=-1043179}, resolution={width=1080, height=1920}, device_token=f5RG6SjPqRQ:APA91bFI-ojBaOeAH8FplRIJoe8j_Xu7NhFquG0IpwtsI4yDGbP8nwehT3CwJ0AcD-Azd16u2tC6IV5Az50-k-uI4C36cRgoOJHuYGwFAMrW1qI4020Zp-j58hmmYM5PWDl2ONlxn0X1}, 9kNXJOLIdlPDb0AOfkjQKy8rlBq1={userState={time=07:06 PM, date=17:02:2019, state=offline}, connected_uid=r3Ne2rSAFZPAa2DCOvTQfmvM9ND2, action=, data=, phone=+996701766680, name=+996701766680, config={color=-1179648}, resolution={width=1080, height=2030}, device_token=cyG96cW99b8:APA91bFpKQvy6TY2xhH4HLfL2kmtOfgMLfYROagh3O4NQFmbeWKy-X-KOMYAdbZvzcEiyW33j8J4aXK1gYwH42cIZGSTNXc1o71KmkBnV5DoB-DB_jgkIAjtyW7I4qc81x5NBX8MZdnF}, r3Ne2rSAFZPAa2DCOvTQfmvM9ND2={userState={time=10:36 PM, date=17:02:2019, state=offline}, connected_uid=Rqk1NMhp2cUs5FftNkeibisMZsI3, action=, data=rO0ABXNyADBjb20uZXhhbXBsZS5hcHBsZS5nZWVrdGVjaC5wYWludC5QYWludFZpZXckRnJhbWUvhu35yiBnVgIABUkABHR5cGVGAAJ4MUYAAngyRgACeTFGAAJ5MnhwAAAAA0SEIAAAAAAARKqgAAAAAAA, phone=+996700472663, name=+996700472663, config={color=-3328}, resolution={width=1080, height=2030}, device_token=cC8HrK0sMi0:APA91bHgZGSfFIhBQ83ruUs5YxOBzPoCs5JfPD-F3-xWes6jj7Rn_FkFF32THwThBlSE9_bJnbpezRdZDtW58vISF562EmxNZpDDhoNgmTvu9VtnYoEKtk9rUi6srCT_0GWwLaLliuAb}}
 
         mDatabase.child("users").child(userId).child("data").setValue("");
         mDatabase.child("users").child(userId).child("connected_uid").setValue(this.UserId);
@@ -294,11 +310,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         display.getSize(size);
                         int width = size.x;
                         int height = size.y;
-                        if (sender_height != height) {
+                        if (sender_height > 0 && sender_height != height) {
                             float h_percent = frame.y1 * 100 / sender_height;
                             frame.y1 = (float) height / 100 * h_percent;
                         }
-                        if (sender_width != width) {
+                        if (sender_width > 0 && sender_width != width) {
                             float w_percent = frame.x1 * 100 / sender_width;
                             frame.y1 = (float) width / 100 * w_percent;
                         }
