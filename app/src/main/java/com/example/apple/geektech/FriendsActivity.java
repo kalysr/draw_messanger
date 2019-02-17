@@ -148,8 +148,8 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
                             token = childSnapshot.child("device_token").getValue().toString();
 
                             if (childSnapshot.child("resolution").exists()) {
-                                width = Integer.valueOf(childSnapshot.child("resolution").child("width").toString());
-                                height = Integer.valueOf(childSnapshot.child("resolution").child("height").toString());
+                                width = Integer.valueOf(childSnapshot.child("resolution").child("width").getValue().toString());
+                                height = Integer.valueOf(childSnapshot.child("resolution").child("height").getValue().toString());
                             }
 
                             if (childSnapshot.child("userState").getValue() != null) {

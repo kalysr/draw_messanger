@@ -278,20 +278,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
-        mDatabase.child("users").child(sender_id).child("resolution").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    sender_height = Integer.valueOf(dataSnapshot.child("height").toString());
-                    sender_height = Integer.valueOf(dataSnapshot.child("width").toString());
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
 
         mDatabase.child("users").child(userId).child("data").setValue("");
         mDatabase.child("users").child(userId).child("connected_uid").setValue(this.UserId);
@@ -308,12 +294,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         display.getSize(size);
                         int width = size.x;
                         int height = size.y;
-                        if (sender_height > height) {
-                            float h_percent = frame.y1*100/sender_height;
-
-                            frame.y1 = height/100*h_percent;
-
-//                            frame.x1 = (float) sender_width;
+                        if (sender_height != height) {
+                            float h_percent = frame.y1 * 100 / sender_height;
+                            frame.y1 = (float) height / 100 * h_percent;
+                        }
+                        if (sender_width != width) {
+                            float w_percent = frame.x1 * 100 / sender_width;
+                            frame.y1 = (float) width / 100 * w_percent;
                         }
 
                         userPath.drawFrame(frame);
