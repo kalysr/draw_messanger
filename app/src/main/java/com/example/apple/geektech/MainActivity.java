@@ -250,6 +250,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final UserPath userPath = new UserPath(userId, paintView);
         paintView.addLayer(userPath);
 
+        Map<String, Object> paintViewSizes = new HashMap<>();
+        paintViewSizes.put("width", paintView.getWidth());
+        paintViewSizes.put("height", paintView.getHeight());
+
+        final Map<String, Object> paintViewSize = new HashMap<>();
+        paintViewSize.put("paintViewSize", paintViewSizes);
+
+        mDatabase.child("users").child(UserId).updateChildren(paintViewSize);
+
 
         mDatabase.child("users").child(userId).child("action").addValueEventListener(new ValueEventListener() {
             @Override
@@ -281,10 +290,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mDatabase.child("users").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    Log.d("test", "onDataChange: " + dataSnapshot.getValue());
-               //     sender_height = Integer.valueOf(dataSnapshot.child(sender_id).child("resolution").child("height").getValue().toString());
-               //     sender_height = Integer.valueOf(dataSnapshot.child(sender_id).child("resolution").child("width").getValue().toString());
+                if (dataSnapshot.exists() && (sender_width == 0 && sender_height == 0)) {
+                    if (dataSnapshot.hasChild(sender_id) && dataSnapshot.child(sender_id).hasChild("paintViewSize")) {
+                        sender_height = Integer.valueOf(dataSnapshot.child(sender_id).child("paintViewSize").child("height").getValue().toString());
+                        sender_width = Integer.valueOf(dataSnapshot.child(sender_id).child("paintViewSize").child("width").getValue().toString());
+                        Log.d("Responsive tst first tm", String.valueOf(sender_width) + " " + String.valueOf(sender_height));
+                    }
+                } else {
+                    // Log.d("Responsive tst already", String.valueOf(sender_width) + " " + String.valueOf(sender_height));
                 }
             }
 
@@ -304,20 +317,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (object != null) {
                     PaintView.Frame frame = (PaintView.Frame) SerializationUtil.stringToObject(object.toString());
                     if (frame != null) {
+                        //   Log.d("Responsive res", String.valueOf(paintView.getWidth()) + " " + String.valueOf(paintView.getHeight()));
 
-                        Display display = getWindowManager().getDefaultDisplay();
-                        Point size = new Point();
-                        display.getSize(size);
-                        int width = size.x;
-                        int height = size.y;
-                        if (sender_height > 0 && sender_height != height) {
-                            float h_percent = frame.y1 * 100 / sender_height;
-                            frame.y1 = (float) height / 100 * h_percent;
-                        }
-                        if (sender_width > 0 && sender_width != width) {
-                            float w_percent = frame.x1 * 100 / sender_width;
-                            frame.y1 = (float) width / 100 * w_percent;
-                        }
+                           /* Display display = getWindowManager().getDefaultDisplay();
+                            Point size = new Point();
+                            display.getSize(size);
+                            int width = size.x;
+                            int height = size.y;*/
+
+                            int width = paintView.getWidth();
+                            int height = paintView.getHeight();
+
+
+                            //  Log.d("Responsive res", String.valueOf(width) + " " + String.valueOf(height));
+
+                            if (sender_height > 0) {
+                                Log.d("Responsive before", frame.toString());
+
+                                float h_percent = frame.y1 * 100 / sender_height;
+                                frame.y1 = (float) height / 100 * h_percent;
+
+                                h_percent = frame.y2 * 100 / sender_height;
+                                frame.y2 = (float) height / 100 * h_percent;
+
+                                Log.d("Responsive after", frame.toString());
+
+                            }
+                            if (sender_width > 0) {
+                                float w_percent = frame.x1 * 100 / sender_width;
+                                frame.x1 = (float) width / 100 * w_percent;
+
+                                w_percent = frame.x2 * 100 / sender_width;
+                                frame.x2 = (float) width / 100 * w_percent;
+                            }
 
                         userPath.drawFrame(frame);
                     }
