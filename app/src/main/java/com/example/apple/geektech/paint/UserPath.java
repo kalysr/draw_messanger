@@ -4,12 +4,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Point;
-import android.view.Display;
-import android.view.WindowManager;
-
-import com.example.apple.geektech.MainActivity;
-import com.example.apple.geektech.Utils.UserObject;
 
 import java.util.ArrayList;
 
@@ -22,6 +16,7 @@ public class UserPath implements ILayer {
 
     private ArrayList<Line> lines = new ArrayList<>(0);
     private ArrayList<PaintView.Frame> frames = new ArrayList<>(0);
+    private ArrayList<PaintView.Frame> frames4repeat = new ArrayList<>(0);
     private int current_position = 0;
 
     private String id;

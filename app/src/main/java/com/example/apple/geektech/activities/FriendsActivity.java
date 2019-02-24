@@ -1,8 +1,7 @@
-package com.example.apple.geektech;
+package com.example.apple.geektech.activities;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
@@ -13,38 +12,29 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.example.apple.geektech.R;
 import com.example.apple.geektech.Utils.CountryToPhonePrfix;
 import com.example.apple.geektech.Utils.SharedPreferenceHelper;
 import com.example.apple.geektech.Utils.UserListAdapter;
 import com.example.apple.geektech.Utils.UserObject;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.android.gms.common.util.SharedPreferencesUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.r0adkll.slidr.Slidr;
 
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class FriendsActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -65,10 +55,12 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
+        Slidr.attach(this);
         context = getApplicationContext();
         userList = new ArrayList<>();
         contactList = new ArrayList<>();
-//        sharedPref = getCallingActivity()
+        getSupportActionBar().setTitle("Friends");
+//        getActionBar().setTitle("Friends");
 
         initializerRecycleView();
 
@@ -209,12 +201,8 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     getContactList();
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-
+                } else
                     Toast.makeText(context, "PERSMISSION DENIED", Toast.LENGTH_SHORT).show();
-                }
             }
         }
     }

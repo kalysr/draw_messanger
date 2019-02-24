@@ -37,7 +37,7 @@ public class SharedPreferenceHelper {
      * @param key - Key to set shared preference
      * @param value - Value for the key
      */
-    static void setBoolean(Context context, String key, boolean value){
+   public static void setBoolean(Context context, String key, boolean value){
         SharedPreferences settings = context.getSharedPreferences(PREF_FILE, 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean(key, value);
@@ -72,7 +72,7 @@ public class SharedPreferenceHelper {
      * @param defValue - Default value to be returned if shared preference isn't found.
      * @return value - String containing value of the shared preference if found.
      */
-    static boolean getBoolean(Context context, String key, boolean defValue){
+    public static boolean getBoolean(Context context, String key, boolean defValue){
         SharedPreferences settings = context.getSharedPreferences(PREF_FILE, 0);
         return settings.getBoolean(key, defValue);
     }

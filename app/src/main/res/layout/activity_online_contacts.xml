@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     style="@style/AppTheme.PopMe"
     android:background="@drawable/gradient"
-    tools:context=".OnlineContactsActivity">
+    tools:context=".activities.OnlineContactsActivity">
 
 
     <android.support.v7.widget.RecyclerView

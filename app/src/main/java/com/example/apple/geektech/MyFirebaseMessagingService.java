@@ -1,12 +1,10 @@
 package com.example.apple.geektech;
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -14,12 +12,11 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.example.apple.geektech.Utils.SharedPreferenceHelper;
+import com.example.apple.geektech.activities.MainActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.Map;
-
-import okhttp3.internal.Internal;
 
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
@@ -40,9 +37,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             Map data = remoteMessage.getData();
             int type = Integer.valueOf(data.get("type").toString());
-
-
-            Log.e("TAG", "type:" +data.get("type").toString());
 
             switch (type){
                 case TYPE_INVITE_REQUEST:

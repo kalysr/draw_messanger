@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.apple.geektech.ProfileActivity;
+import com.example.apple.geektech.activities.ProfileActivity;
 import com.example.apple.geektech.R;
 
 import java.util.ArrayList;

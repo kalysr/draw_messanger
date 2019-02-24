@@ -1,4 +1,4 @@
-package com.example.apple.geektech;
+package com.example.apple.geektech.activities;
 
 import android.database.Cursor;
 import android.provider.ContactsContract;
@@ -12,6 +12,7 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 
+import com.example.apple.geektech.R;
 import com.example.apple.geektech.Utils.UserListAdapter;
 import com.example.apple.geektech.Utils.UserObject;
 

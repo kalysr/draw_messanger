@@ -6,7 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="8dp"
-    tools:context=".ProfileActivity">
+    android:background="@color/background_material_light"
+    tools:context=".activities.ProfileActivity">
+
 <ImageView
     android:id="@+id/prifileImage"
     android:src="@drawable/ic_account_circle_black_24dp"

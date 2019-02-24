@@ -161,7 +161,7 @@ public class PaintView extends View {
     }
 
     public static class Frame implements Serializable {
-        public float x1, y1, x2, y2;
+        public float x1, y1, x2, y2,x1Perc,y1Perc,x2Perc,y2Perc;
         int type = 0;
 
         final static int LINE_TO = 1;
@@ -169,6 +169,12 @@ public class PaintView extends View {
         final static int CIRCLE = 3;
 
         public Frame(float x1, float y1, float x2, float y2) {
+            this.x1 = x1;
+            this.y1 = y1;
+            this.x2 = x2;
+            this.y2 = y2;
+        }
+        public Frame(float x1, float y1,float xPerc ,float x2, float y2,float yPerc) {
             this.x1 = x1;
             this.y1 = y1;
             this.x2 = x2;

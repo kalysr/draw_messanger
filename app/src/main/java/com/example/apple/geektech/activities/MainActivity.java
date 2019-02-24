@@ -1,21 +1,25 @@
-package com.example.apple.geektech;
+package com.example.apple.geektech.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.apple.geektech.MyFirebaseMessagingService;
+import com.example.apple.geektech.R;
 import com.example.apple.geektech.Utils.FirebaseHelper;
 import com.example.apple.geektech.Utils.SerializationUtil;
 import com.example.apple.geektech.Utils.SharedPreferenceHelper;
@@ -29,6 +33,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.r0adkll.slidr.Slidr;
+import com.r0adkll.slidr.model.SlidrInterface;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,14 +45,19 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     PaintView paintView;
+    SlidrInterface slidrInterface;
+    private final String TAG = MainActivity.class.getSimpleName();
+    ImageView imageViewRecording;
     ImageButton clearButton, redrawBtn, undoButton, colorPickerBtn, gridBtn, contactBtn, historyBtn, onlineContactsBtn, signOut;
-    String UserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    String UserId = "";
     String sender_id = "";
     DatabaseReference rootRef =
             FirebaseDatabase.getInstance().getReference();
     UserPath selfUserPath = null;
     public static String USER_ID = "USER_ID";
-    boolean pressed = true;
+    boolean pressed = true,recording=true,screenOn=false;
+    public final String KEEP_SCREEN = "keep_screen";
+
     private Integer sender_height = 0;
     private Integer sender_width = 0;
 
@@ -54,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        slidrInterface = Slidr.attach(this);
+        slidrInterface.lock();
         setContentView(R.layout.activity_main);
         FirebaseHelper.init(this);
         init();
@@ -64,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+
+
     private void initUserId() {
 
         this.UserId = SharedPreferenceHelper.getString(this, USER_ID, null);
@@ -73,7 +88,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             SharedPreferenceHelper.setString(this, USER_ID, this.UserId);
         }
     }
-
 
     private void init() {
         paintView = findViewById(R.id.main_paint_view);
@@ -86,7 +100,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         onlineContactsBtn = findViewById(R.id.onlineContactsBtn);
         historyBtn = findViewById(R.id.historyBtn);
         signOut = findViewById(R.id.signOut);
+        imageViewRecording = findViewById(R.id.image_recording);
+        screenOn = SharedPreferenceHelper.getBoolean(getApplicationContext(),KEEP_SCREEN,true);
+        if (!screenOn)
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        startActivity(new Intent(MainActivity.this,FriendsActivity.class));
         clearButton.setOnClickListener(this);
         colorPickerBtn.setOnClickListener(this);
         contactBtn.setOnClickListener(this);
@@ -96,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         onlineContactsBtn.setOnClickListener(this);
         signOut.setOnClickListener(this);
         undoButton.setOnClickListener(this);
+
 
     }
 
@@ -131,7 +152,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         selfUserPath.setListener(new UserPath.Listener() {
             @Override
             public void onAddFrame(PaintView.Frame frame) {
+                frame.x1Perc = getPercentX(frame.x1);
+                frame.x2Perc = getPercentX(frame.x2);
+
+                frame.y1Perc = getPercentY(frame.y1);
+                frame.y2Perc = getPercentY(frame.y2);
+
                 String data = SerializationUtil.objectToString(frame);
+
                 mDatabase.child("users").child(UserId).child("data").setValue(data);
             }
 
@@ -215,6 +243,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    private float getPercentX(float x) {
+        return x * 100 / paintView.getWidth();
+    }
+    private float getPercentY(float y) {
+        return y * 100 / paintView.getHeight();
+    }
+
     public void openColorPicker() {
         AmbilWarnaDialog colorPicker = new AmbilWarnaDialog(this, selfUserPath.getPenColor(), new AmbilWarnaDialog.OnAmbilWarnaListener() {
             @Override
@@ -257,6 +292,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final Map<String, Object> paintViewSize = new HashMap<>();
         paintViewSize.put("paintViewSize", paintViewSizes);
 
+        mDatabase.child("users").child(userId).child("PaintViewSize").updateChildren(paintViewSizes);
+
         mDatabase.child("users").child(UserId).updateChildren(paintViewSize);
 
 
@@ -287,26 +324,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
-        mDatabase.child("users").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists() && (sender_width == 0 && sender_height == 0)) {
-                    if (dataSnapshot.hasChild(sender_id) && dataSnapshot.child(sender_id).hasChild("paintViewSize")) {
-                        sender_height = Integer.valueOf(dataSnapshot.child(sender_id).child("paintViewSize").child("height").getValue().toString());
-                        sender_width = Integer.valueOf(dataSnapshot.child(sender_id).child("paintViewSize").child("width").getValue().toString());
-                        Log.d("Responsive tst first tm", String.valueOf(sender_width) + " " + String.valueOf(sender_height));
-                    }
-                } else {
-                    // Log.d("Responsive tst already", String.valueOf(sender_width) + " " + String.valueOf(sender_height));
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-        // {Of2N2UzSNrTuqrSlHmxojZ3xpgF2={phone=+996703328363, name=+996703328363, device_token=cvwbr-idSFE:APA91bH-7XE7kioH4MdtoClGXOgzfN4t0MCkBMBhwNysTnsaL6d2yHXl7rAAur409BoriLhNE32IMV-YLrbIVLyQlzXs0N0_oD0FAzeMSlz7qxXRLOm8z9Tslpe5aqXGw1bkbGtVrTBZ, action=, data=}, connected_uid=Rqk1NMhp2cUs5FftNkeibisMZsI3, data=, DLA0lWIz0vRY3HTqVcbHY24rBYR2={userState={time=07:37 PM, date=17:02:2019, state=offline}, connected_uid=Rqk1NMhp2cUs5FftNkeibisMZsI3, action=, data=, phone=+996559969960, name=+996559969960, config={color=-16711917}, device_token=el7pNgt8ya0:APA91bHFerUPzRLieer-7FBorgxqtgtMsVJP4j-fzHrowshwJ5fidEx4NtipH7kWya0sTCaWIgrmmgjaWln6ql_za7LZj2r0lYsxsXAub5V5k9BONebtIcSBZIoS-jXmLIrqK5FzzHNH}, -LVUFaAnUSSyeuSoYmS1={action=, data=}, Rqk1NMhp2cUs5FftNkeibisMZsI3={userState={time=10:36 PM, date=17:02:2019, state=online}, connected_uid=r3Ne2rSAFZPAa2DCOvTQfmvM9ND2, action=, data=, phone=+996709770095, name=+996709770095, config={color=-1043179}, resolution={width=1080, height=1920}, device_token=f5RG6SjPqRQ:APA91bFI-ojBaOeAH8FplRIJoe8j_Xu7NhFquG0IpwtsI4yDGbP8nwehT3CwJ0AcD-Azd16u2tC6IV5Az50-k-uI4C36cRgoOJHuYGwFAMrW1qI4020Zp-j58hmmYM5PWDl2ONlxn0X1}, 9kNXJOLIdlPDb0AOfkjQKy8rlBq1={userState={time=07:06 PM, date=17:02:2019, state=offline}, connected_uid=r3Ne2rSAFZPAa2DCOvTQfmvM9ND2, action=, data=, phone=+996701766680, name=+996701766680, config={color=-1179648}, resolution={width=1080, height=2030}, device_token=cyG96cW99b8:APA91bFpKQvy6TY2xhH4HLfL2kmtOfgMLfYROagh3O4NQFmbeWKy-X-KOMYAdbZvzcEiyW33j8J4aXK1gYwH42cIZGSTNXc1o71KmkBnV5DoB-DB_jgkIAjtyW7I4qc81x5NBX8MZdnF}, r3Ne2rSAFZPAa2DCOvTQfmvM9ND2={userState={time=10:36 PM, date=17:02:2019, state=offline}, connected_uid=Rqk1NMhp2cUs5FftNkeibisMZsI3, action=, data=rO0ABXNyADBjb20uZXhhbXBsZS5hcHBsZS5nZWVrdGVjaC5wYWludC5QYWludFZpZXckRnJhbWUvhu35yiBnVgIABUkABHR5cGVGAAJ4MUYAAngyRgACeTFGAAJ5MnhwAAAAA0SEIAAAAAAARKqgAAAAAAA, phone=+996700472663, name=+996700472663, config={color=-3328}, resolution={width=1080, height=2030}, device_token=cC8HrK0sMi0:APA91bHgZGSfFIhBQ83ruUs5YxOBzPoCs5JfPD-F3-xWes6jj7Rn_FkFF32THwThBlSE9_bJnbpezRdZDtW58vISF562EmxNZpDDhoNgmTvu9VtnYoEKtk9rUi6srCT_0GWwLaLliuAb}}
 
         mDatabase.child("users").child(userId).child("data").setValue("");
         mDatabase.child("users").child(userId).child("connected_uid").setValue(this.UserId);
@@ -317,42 +334,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (object != null) {
                     PaintView.Frame frame = (PaintView.Frame) SerializationUtil.stringToObject(object.toString());
                     if (frame != null) {
-                        //   Log.d("Responsive res", String.valueOf(paintView.getWidth()) + " " + String.valueOf(paintView.getHeight()));
-
-                           /* Display display = getWindowManager().getDefaultDisplay();
-                            Point size = new Point();
-                            display.getSize(size);
-                            int width = size.x;
-                            int height = size.y;*/
 
                             int width = paintView.getWidth();
                             int height = paintView.getHeight();
 
+                                frame.y1 = (float) height / 100 * frame.y1Perc;
+                                frame.y2 = (float) height / 100 * frame.y2Perc;
 
-                            //  Log.d("Responsive res", String.valueOf(width) + " " + String.valueOf(height));
-
-                            if (sender_height > 0) {
-                                Log.d("Responsive before", frame.toString());
-
-                                float h_percent = frame.y1 * 100 / sender_height;
-                                frame.y1 = (float) height / 100 * h_percent;
-
-                                h_percent = frame.y2 * 100 / sender_height;
-                                frame.y2 = (float) height / 100 * h_percent;
-
-                                Log.d("Responsive after", frame.toString());
-
+                                frame.x1 = (float) width / 100 * frame.x1Perc;
+                                frame.x2 = (float) width / 100 * frame.x2Perc;
                             }
-                            if (sender_width > 0) {
-                                float w_percent = frame.x1 * 100 / sender_width;
-                                frame.x1 = (float) width / 100 * w_percent;
-
-                                w_percent = frame.x2 * 100 / sender_width;
-                                frame.x2 = (float) width / 100 * w_percent;
-                            }
-
                         userPath.drawFrame(frame);
-                    }
                 }
             }
 
@@ -404,6 +396,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.signOut:
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
+
                 break;
             case R.id.clear_canvas:
                 selfUserPath.clearCanvas();
@@ -412,6 +405,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.redrawBtn:
                 selfUserPath.redrawFrames();
+
+                animateRecording();
                 break;
             case R.id.undo_button:
                 selfUserPath.undo();
@@ -422,6 +417,53 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.historyBtn:
                 startActivity(new Intent(MainActivity.this, HistoryActivity.class));
                 break;
+
         }
+    }
+
+    private void animateRecording() {
+        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.record_anim);
+
+        if (recording){
+            imageViewRecording.setVisibility(View.VISIBLE);
+            redrawBtn.setImageResource(R.drawable.ic_pause_black_24dp);
+            imageViewRecording.startAnimation(animation);
+            recording = false;
+        } else {
+            redrawBtn.setImageResource(R.drawable.ic_play_arrow_black_24dp);
+            imageViewRecording.clearAnimation();
+            animation.cancel();
+            animation.reset();
+            imageViewRecording.setVisibility(View.INVISIBLE);
+
+            recording = true;
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.main_menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
+        switch (item.getItemId()){
+            case R.id.menu_add_user:
+                startActivity(new Intent(MainActivity.this,OnlineContactsActivity.class));
+                break;
+            case R.id.menu_settings:
+                startActivity(new Intent(MainActivity.this,SettingsActivity.class));
+                break;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
     }
 }

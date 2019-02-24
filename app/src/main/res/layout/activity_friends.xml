@@ -8,7 +8,7 @@
     android:layout_height="wrap_content"
     android:paddingLeft="16dp"
     android:id="@+id/parent_activity"
-    tools:context=".FriendsActivity">
+    tools:context=".activities.FriendsActivity">
 
 
     <android.support.v7.widget.RecyclerView

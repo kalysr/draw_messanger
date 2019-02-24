@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".activities.SettingsActivity">
+
+    <ImageView
+        android:id="@+id/prifileImage"
+        android:src="@mipmap/ic_launcher_round"
+        android:layout_width="100dp"
+        android:layout_height="100dp" />
+    <TextView
+        android:id="@+id/theUser_TV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:textColor="@color/black"
+        android:paddingLeft="16dp"
+        app:layout_constraintStart_toEndOf="@id/prifileImage"
+        android:text="Username"/>
+    <TextView
+        android:id="@+id/theUser_status_TV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:paddingLeft="16dp"
+
+        app:layout_constraintStart_toEndOf="@id/prifileImage"
+        app:layout_constraintTop_toBottomOf="@id/theUser_TV"
+        android:text="Username"/>
+
+    <Switch
+        android:id="@+id/switch_keep_screen_on"
+        android:text="Keep screen on"
+        android:textSize="24sp"
+        android:paddingTop="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/prifileImage"/>
+    <Switch
+        android:id="@+id/switch_cache_records"
+        android:text="Cache draw-records"
+        android:textSize="24sp"
+        android:paddingTop="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/switch_keep_screen_on"/>
+
+</android.support.constraint.ConstraintLayout>

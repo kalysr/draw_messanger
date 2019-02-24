@@ -1,4 +1,4 @@
-package com.example.apple.geektech;
+package com.example.apple.geektech.activities;
 
 import android.content.Intent;
 import android.graphics.Point;
@@ -6,15 +6,14 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.apple.geektech.Library.App;
+import com.example.apple.geektech.R;
 import com.example.apple.geektech.Utils.SharedPreferenceHelper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -36,12 +35,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import static java.lang.System.out;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -113,6 +109,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (!TextUtils.isEmpty(phone_number.getText())) {
                     verifyPhone();
+//                    startActivity(new Intent(LoginActivity.this,MainActivity.class));
                 } else
                     phone_number.setError("Phone is required");
             }
@@ -162,6 +159,7 @@ public class LoginActivity extends AppCompatActivity {
                                                             Display display = getWindowManager().getDefaultDisplay();
                                                             Point size = new Point();
                                                             display.getSize(size);
+
                                                             int width = size.x;
                                                             int height = size.y;
                                                             Map<String,Object> resolution = new HashMap<>();
@@ -215,13 +213,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void userIsLoggedIn() {
-
-
-
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            startActivity(new Intent(getApplicationContext(), FriendsActivity.class));
-            finish();
+             Intent intent= new Intent(getApplicationContext(), MainActivity.class);
+             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+             startActivity(intent);
+//            finish();
         }
     }
 

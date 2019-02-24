@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:keepScreenOn="true"
-    tools:context=".MainActivity">
+    tools:context=".activities.MainActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -13,12 +12,15 @@
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp">
 
+
         <com.example.apple.geektech.paint.PaintView
             android:id="@+id/main_paint_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/scroll"
-            android:background="@drawable/gradient" />
+            android:background="@drawable/gradient" >
+
+        </com.example.apple.geektech.paint.PaintView>
 
         <HorizontalScrollView
             android:id="@+id/scroll"
@@ -116,8 +118,14 @@
 
             </LinearLayout>
         </HorizontalScrollView>
-
+        <ImageView
+            android:visibility="invisible"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="15dp"
+            android:id="@+id/image_recording"
+            android:src="@drawable/ic_fiber_manual_record_black_24dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp" />
     </RelativeLayout>
-
 
 </android.support.constraint.ConstraintLayout>

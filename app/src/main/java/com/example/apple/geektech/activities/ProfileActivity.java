@@ -1,16 +1,16 @@
-package com.example.apple.geektech;
+package com.example.apple.geektech.activities;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.apple.geektech.MyFirebaseMessagingService;
 import com.example.apple.geektech.R;
 import com.example.apple.geektech.Utils.SharedPreferenceHelper;
 import com.example.apple.geektech.api.NotificationApi;
@@ -22,7 +22,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceId;
+import com.r0adkll.slidr.Slidr;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class ProfileActivity extends AppCompatActivity {
     DatabaseReference friendRequestReference, notificationsReference;
     private String CURRENT_STATE;
     String receiver_id;
-    String receiver_uid;
+    String receiver_uid="";
     String sender_id;
     FirebaseAuth mAuth;
 
@@ -45,6 +45,7 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Slidr.attach(this);
         setContentView(R.layout.activity_profile);
         init();
 
@@ -85,36 +86,14 @@ public class ProfileActivity extends AppCompatActivity {
         sendRequestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //  sendRequestBtn.setEnabled(false);
-
-                //if (CURRENT_STATE == "not_friend"){
                 sendFriendRequest();
-                //    }
-            }
+              }
         });
 
     }
 
     private void sendFriendRequest() {
-
-
-
-        Toast.makeText(this, receiver_id + "", Toast.LENGTH_SHORT).show();
-
-        String phoneNumber = mAuth.getCurrentUser().getPhoneNumber();
-        String body = phoneNumber +" wants to send a message.";
-
-        Map data = new HashMap();
-        data.put("title", "Notification");
-        data.put("phone", phoneNumber);
-        data.put("body", body);
-        data.put("id",mAuth.getCurrentUser().getUid());
-        Log.e("TAG", "sendFriendRequest: " +mAuth.getCurrentUser().getUid() );
-        data.put("sender_token", SharedPreferenceHelper.getString(ProfileActivity.this,"token","no token"));
-        NotificationApi.send( receiver_id,MyFirebaseMessagingService.TYPE_INVITE_REQUEST,data);
-
-
-
+        sendNotification();
         friendRequestReference.child(sender_id).child(receiver_id).child("request_type")
                 .setValue("sent").addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -131,18 +110,32 @@ public class ProfileActivity extends AppCompatActivity {
                                         sendRequestBtn.setText("Cancel friend request");
                                         sendRequestBtn.setEnabled(true);
                                     }
-                                    Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
-                                    intent.putExtra("name", getIntent().getStringExtra("name"));
-                                    intent.putExtra("receiver_id", receiver_uid);
-                                    Log.d("TAG", "onComplete:receiver_id =  "+receiver_id);
-                                    Log.d("TAG", "onComplete:sender_id =  "+sender_id);
-                                    startActivity(intent);
-                                    finish();
+
                                 }
                             });
                 }
             }
         });
+        Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
+        intent.putExtra("name", getIntent().getStringExtra("name"));
+        intent.putExtra("receiver_id", receiver_uid);
+        startActivity(intent);
+        finish();
+
+    }
+
+    private void sendNotification() {
+        String phoneNumber = mAuth.getCurrentUser().getPhoneNumber();
+        String body = phoneNumber +" wants to send a message.";
+
+        Map data = new HashMap();
+        data.put("title", "Notification");
+        data.put("phone", phoneNumber);
+        data.put("body", body);
+        data.put("id",mAuth.getCurrentUser().getUid());
+        data.put("sender_token", SharedPreferenceHelper.getString(ProfileActivity.this,"token","no token"));
+
+        NotificationApi.send( receiver_id, MyFirebaseMessagingService.TYPE_INVITE_REQUEST,data);
 
     }
 
