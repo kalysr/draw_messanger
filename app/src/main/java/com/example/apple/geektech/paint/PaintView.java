@@ -75,10 +75,14 @@ public class PaintView extends View {
         return selfLayer;
     }
 
+    public void drawLine(float x,float y){
+
+    }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+
         for(Map.Entry<String, ILayer> entry : users.entrySet()) {
             ILayer layer = entry.getValue();
             for(ILine line : layer.getLines()) {

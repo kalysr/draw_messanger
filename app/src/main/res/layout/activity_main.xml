@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".activities.MainActivity">
 
     <RelativeLayout
@@ -126,6 +126,19 @@
             android:src="@drawable/ic_fiber_manual_record_black_24dp"
             android:layout_width="30dp"
             android:layout_height="30dp" />
-    </RelativeLayout>
 
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/scroll"
+            android:paddingBottom="16dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_centerHorizontal="true"
+
+            android:max="40"
+            android:progress="20" />
+
+    </RelativeLayout>
 </android.support.constraint.ConstraintLayout>

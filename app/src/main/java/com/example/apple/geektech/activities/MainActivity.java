@@ -1,7 +1,9 @@
 package com.example.apple.geektech.activities;
 
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.support.annotation.NonNull;
@@ -16,8 +18,10 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
+import com.amulyakhare.textdrawable.TextDrawable;
 import com.example.apple.geektech.MyFirebaseMessagingService;
 import com.example.apple.geektech.R;
 import com.example.apple.geektech.Utils.FirebaseHelper;
@@ -48,6 +52,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     SlidrInterface slidrInterface;
     private final String TAG = MainActivity.class.getSimpleName();
     ImageView imageViewRecording;
+    int userChosenPercent = 0;
+    SeekBar seekBar;
     ImageButton clearButton, redrawBtn, undoButton, colorPickerBtn, gridBtn, contactBtn, historyBtn, onlineContactsBtn, signOut;
     String UserId = "";
     String sender_id = "";
@@ -74,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getIncomingIntent();
         initEvents();
 
-
     }
 
 
@@ -92,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void init() {
         paintView = findViewById(R.id.main_paint_view);
         clearButton = findViewById(R.id.clear_canvas);
+        seekBar = findViewById(R.id.seekBar);
         redrawBtn = findViewById(R.id.redrawBtn);
         undoButton = findViewById(R.id.undo_button);
         colorPickerBtn = findViewById(R.id.color_picker);
@@ -106,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        startActivity(new Intent(MainActivity.this,FriendsActivity.class));
+
         clearButton.setOnClickListener(this);
         colorPickerBtn.setOnClickListener(this);
         contactBtn.setOnClickListener(this);
@@ -117,6 +123,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         signOut.setOnClickListener(this);
         undoButton.setOnClickListener(this);
 
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                String dynamicText = String.valueOf(progress-20);
+//                userChosenPercent = progress-20;
+                TextDrawable drawable = TextDrawable.builder()
+                        .beginConfig()
+                        .fontSize(40)
+                        .textColor(Color.MAGENTA)
+                        .endConfig()
+                        .buildRoundRect(dynamicText , Color.WHITE ,20);
+                seekBar.setThumb(drawable);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
     }
 
@@ -138,14 +169,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 type = MyFirebaseMessagingService.TYPE_INVITE_DECLINED;
             }
 
-            Toast.makeText(this, "Friend request has been " + (accepted ? "accepted" : "declined"), Toast.LENGTH_LONG).show();
+          //  Toast.makeText(this, "Friend request has been " + (accepted ? "accepted" : "declined"), Toast.LENGTH_LONG).show();
             String receiverToken = getIntent().getStringExtra("sender_token");
             NotificationApi.send(receiverToken, type, data);
+        }
+
+        if (getIntent().hasExtra("from_login") && getIntent().getBooleanExtra("from_login",false)){
+            startActivity(new Intent(MainActivity.this,FriendsActivity.class));
         }
     }
 
     private void initEvents() {
         final DatabaseReference mDatabase = FirebaseHelper.getInstance().getDatabase();
+
+        //getting sender user's Screen Resolution
+        mDatabase.child("users").child(sender_id).child("PaintViewSize").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()){
+                    sender_height = Integer.valueOf(dataSnapshot.child("width").getValue().toString());
+                    sender_width = Integer.valueOf(dataSnapshot.child("height").getValue().toString());
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
 
         selfUserPath = new UserPath(UserId, paintView);
         paintView.setSelfLayer(selfUserPath);
@@ -294,8 +347,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mDatabase.child("users").child(userId).child("PaintViewSize").updateChildren(paintViewSizes);
 
-        mDatabase.child("users").child(UserId).updateChildren(paintViewSize);
-
+//        mDatabase.child("users").child(UserId).updateChildren(paintViewSize);
 
         mDatabase.child("users").child(userId).child("action").addValueEventListener(new ValueEventListener() {
             @Override
@@ -331,18 +383,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Object object = dataSnapshot.getValue();
+
+
                 if (object != null) {
                     PaintView.Frame frame = (PaintView.Frame) SerializationUtil.stringToObject(object.toString());
                     if (frame != null) {
-
                             int width = paintView.getWidth();
                             int height = paintView.getHeight();
 
-                                frame.y1 = (float) height / 100 * frame.y1Perc;
-                                frame.y2 = (float) height / 100 * frame.y2Perc;
+                                frame.y1 = (float) (height / 100) * frame.y1Perc;
+                                frame.y2 = (float) (height / 100) * frame.y2Perc;
 
-                                frame.x1 = (float) width / 100 * frame.x1Perc;
-                                frame.x2 = (float) width / 100 * frame.x2Perc;
+                                frame.x1 = (float) (width / 100) * frame.x1Perc;
+                                frame.x2 = (float) (width / 100) * frame.x2Perc;
                             }
                         userPath.drawFrame(frame);
                 }
@@ -396,6 +449,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.signOut:
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                finish();
 
                 break;
             case R.id.clear_canvas:
@@ -466,4 +520,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onBackPressed() {
         moveTaskToBack(true);
     }
+
 }

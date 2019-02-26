@@ -44,6 +44,9 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.12.1'
     implementation 'com.squareup.picasso:picasso:2.71828'
     implementation 'org.jetbrains:annotations-java5:15.0'
+    //slider close
     implementation 'com.r0adkll:slidableactivity:2.0.6'
+    //text on SeekBar
+    implementation 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
 }
 apply plugin: 'com.google.gms.google-services'

@@ -2,18 +2,23 @@ package com.example.apple.geektech.Utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.amulyakhare.textdrawable.TextDrawable;
 import com.example.apple.geektech.activities.ProfileActivity;
 import com.example.apple.geektech.R;
+import com.google.firebase.database.collection.LLRBNode;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserListViewHolder> {
 
@@ -44,6 +49,14 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
         userListViewHolder.mName.setText(userList.get(i).getName());
         userListViewHolder.mPhone.setText(userList.get(i).getPhone());
         userListViewHolder.mlastSeen.setText(userList.get(i).getStatus());
+        TextDrawable drawable = TextDrawable.builder()
+                .beginConfig()
+                .fontSize(100)
+                .bold()
+                .textColor(Color.WHITE)
+                .endConfig()
+                .buildRoundRect(userList.get(i).getName().substring(0,1) , getRandomColor() ,100);
+        userListViewHolder.imageView.setImageDrawable(drawable);
 
         userListViewHolder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,13 +74,22 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
 
     }
 
+    private int getRandomColor() {
+        Integer[] colors = new Integer[]{
+        Color.CYAN, Color.BLUE,Color.GREEN,Color.MAGENTA,Color.LTGRAY
+        };
+        Random random = new Random();
+//        random.nextInt()
+        return colors[random.nextInt(4)];
+    }
+
     @Override
     public int getItemCount() {
         return userList.size();
     }
 
     public class UserListViewHolder extends RecyclerView.ViewHolder {
-        TextView mName, mPhone, mlastSeen;
+        TextView mName, mPhone, mlastSeen; ImageView imageView;
         LinearLayout parentLayout;
         public UserListViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -76,7 +98,10 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
             mPhone = itemView.findViewById(R.id.userPhoneTV);
             mlastSeen = itemView.findViewById(R.id.lastSeen_TV);
             parentLayout = itemView.findViewById(R.id.userItem);
+            imageView = itemView.findViewById(R.id.userPhotoIV);
         }
     }
+
+
 
 }

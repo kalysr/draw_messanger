@@ -216,6 +216,7 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
              Intent intent= new Intent(getApplicationContext(), MainActivity.class);
+             intent.putExtra("from_login",true);
              intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
              startActivity(intent);
 //            finish();

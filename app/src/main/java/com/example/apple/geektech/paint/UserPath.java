@@ -83,9 +83,6 @@ public class UserPath implements ILayer {
     }
 
 
-
-
-
     private void init() {
         Path mPath = new Path();
         mLine = new Line(mPath,getClonePaint());
