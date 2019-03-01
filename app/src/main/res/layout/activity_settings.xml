@@ -8,10 +8,14 @@
     tools:context=".activities.SettingsActivity">
 
     <ImageView
-        android:id="@+id/prifileImage"
+        android:id="@+id/profileImage"
         android:src="@mipmap/ic_launcher_round"
         android:layout_width="100dp"
-        android:layout_height="100dp" />
+        android:layout_height="100dp"
+        android:contentDescription="@string/profile_photo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
     <TextView
         android:id="@+id/theUser_TV"
         android:layout_width="wrap_content"
@@ -19,7 +23,8 @@
         android:textSize="24sp"
         android:textColor="@color/black"
         android:paddingLeft="16dp"
-        app:layout_constraintStart_toEndOf="@id/prifileImage"
+        app:layout_constraintStart_toEndOf="@id/profileImage"
+        app:layout_constraintTop_toTopOf="parent"
         android:text="Username"/>
     <TextView
         android:id="@+id/theUser_status_TV"
@@ -28,7 +33,7 @@
         android:textSize="24sp"
         android:paddingLeft="16dp"
 
-        app:layout_constraintStart_toEndOf="@id/prifileImage"
+        app:layout_constraintStart_toEndOf="@id/profileImage"
         app:layout_constraintTop_toBottomOf="@id/theUser_TV"
         android:text="Username"/>
 
@@ -39,10 +44,10 @@
         android:paddingTop="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/prifileImage"/>
+        app:layout_constraintTop_toBottomOf="@id/profileImage"/>
     <Switch
         android:id="@+id/switch_cache_records"
-        android:text="Cache draw-records"
+        android:text="@string/cache_draw_records"
         android:textSize="24sp"
         android:paddingTop="16dp"
         android:layout_width="match_parent"

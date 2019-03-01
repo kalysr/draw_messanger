@@ -2,6 +2,7 @@ package com.example.apple.geektech.Utils;
 
 import android.app.Application;
 
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class Offline_functions extends Application {
@@ -10,5 +11,6 @@ public class Offline_functions extends Application {
         super.onCreate();
 
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+
     }
 }

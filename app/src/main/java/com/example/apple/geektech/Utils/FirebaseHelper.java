@@ -8,7 +8,6 @@ import com.google.firebase.database.FirebaseDatabase;
 public class FirebaseHelper {
 
     private static FirebaseHelper instance;
-    private Context context;
 
     public DatabaseReference getDatabase() {
         return mDatabase;
@@ -18,7 +17,7 @@ public class FirebaseHelper {
 
     public FirebaseHelper(Context context){
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        this.context = context;
+        Context context1 = context;
     }
 
     public static void init(Context context) {
@@ -29,7 +28,4 @@ public class FirebaseHelper {
         return instance;
     }
 
-    public String addUser(){
-        return mDatabase.child("users").push().getKey();
-    }
 }

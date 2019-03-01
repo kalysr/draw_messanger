@@ -37,14 +37,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
             Map data = remoteMessage.getData();
             int type = Integer.valueOf(data.get("type").toString());
-
+            phone = data.get("phone").toString();
             switch (type){
                 case TYPE_INVITE_REQUEST:
                     phone = data.get("phone").toString();
                     name = SharedPreferenceHelper.getString(getApplicationContext(), phone, phone);
                     body = name + " wants to send a message.";
                     sender_token = data.get("sender_token").toString();
-                    Log.e("TAG", "onMessageReceived: not  "+body );
+//                    Log.e("TAG", "onMessageReceived: not  "+body );
                     sendNotification(body, "Notification",TYPE_INVITE_REQUEST);
                     break;
                 case TYPE_INVITE_ACCEPTED:
@@ -72,6 +72,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("phone",phone);
 
         Intent intentAccept = new Intent(this, MainActivity.class);
         intentAccept.putExtra("accepted", true);

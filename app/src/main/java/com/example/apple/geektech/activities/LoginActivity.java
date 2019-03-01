@@ -68,7 +68,7 @@ public class LoginActivity extends AppCompatActivity {
         getVerCode = findViewById(R.id.login_forward2);
         login_forward = findViewById(R.id.login_forward);
         phone_number = findViewById(R.id.phone_number_field);
-        verificationCodeInput = findViewById(R.id.verifaciton_code);
+        verificationCodeInput = findViewById(R.id.verification_code);
         mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             @Override
             public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {

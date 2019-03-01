@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="10dp"
+        android:padding="10dp"
+
+        app:cardCornerRadius="2dp">
+
+        <TextView
+
+            android:id="@+id/recordNameTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/record"
+            android:textSize="40sp" />
+
+        <TextView
+            android:id="@+id/recordDateTV"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/recordNameTV"
+            android:layout_alignBottom="@+id/recordNameTV"
+            android:layout_gravity="right|bottom"
+            android:text="10.10.2100"
+            android:textSize="20sp" />
+    </android.support.v7.widget.CardView>
+
+</RelativeLayout>

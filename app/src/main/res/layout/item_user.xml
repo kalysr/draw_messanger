@@ -13,6 +13,7 @@
         android:id="@+id/userPhotoIV"
         android:src="@drawable/ic_account_circle_black_24dp"
         android:layout_width="70dp"
+        android:contentDescription="@string/user_photo"
         android:layout_height="70dp" />
 
     <LinearLayout

@@ -14,7 +14,7 @@ import android.widget.LinearLayout;
 
 import com.example.apple.geektech.R;
 import com.example.apple.geektech.Utils.UserListAdapter;
-import com.example.apple.geektech.Utils.UserObject;
+import com.example.apple.geektech.models.UserObject;
 
 import java.util.ArrayList;
 
@@ -22,7 +22,6 @@ public class OnlineContactsActivity extends AppCompatActivity {
 
     private RecyclerView mUserList;
     private RecyclerView.Adapter mUserListAdapter;
-    private RecyclerView.LayoutManager mUserListLayoutManager;
 
     ArrayList<UserObject> userList;
 
@@ -92,7 +91,7 @@ public class OnlineContactsActivity extends AppCompatActivity {
         mUserList.setNestedScrollingEnabled(false);
         mUserList.setHasFixedSize(false);
 
-        mUserListLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayout.VERTICAL, false);
+        RecyclerView.LayoutManager mUserListLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayout.VERTICAL, false);
         mUserList.setLayoutManager(mUserListLayoutManager);
 
         mUserListAdapter = new UserListAdapter(getApplicationContext(),userList);

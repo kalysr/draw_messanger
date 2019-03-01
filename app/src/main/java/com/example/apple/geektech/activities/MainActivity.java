@@ -1,14 +1,15 @@
 package com.example.apple.geektech.activities;
 
+import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,15 +20,17 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
-import android.widget.Toast;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.example.apple.geektech.MyFirebaseMessagingService;
 import com.example.apple.geektech.R;
+import com.example.apple.geektech.SaveRecordDialog;
 import com.example.apple.geektech.Utils.FirebaseHelper;
+import com.example.apple.geektech.Utils.RecordsListAdapter;
 import com.example.apple.geektech.Utils.SerializationUtil;
 import com.example.apple.geektech.Utils.SharedPreferenceHelper;
 import com.example.apple.geektech.api.NotificationApi;
+import com.example.apple.geektech.models.DrawRecords;
 import com.example.apple.geektech.paint.GridLayer;
 import com.example.apple.geektech.paint.PaintView;
 import com.example.apple.geektech.paint.UserPath;
@@ -40,17 +43,23 @@ import com.google.firebase.database.ValueEventListener;
 import com.r0adkll.slidr.Slidr;
 import com.r0adkll.slidr.model.SlidrInterface;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, SaveRecordDialog.ISaveRecordDialogListener {
 
     PaintView paintView;
     SlidrInterface slidrInterface;
     private final String TAG = MainActivity.class.getSimpleName();
+    RecyclerView recyclerRecords;
+    ArrayList<DrawRecords> records;
+    RecordsListAdapter adapter;
     ImageView imageViewRecording;
     int userChosenPercent = 0;
     SeekBar seekBar;
@@ -83,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-
     private void initUserId() {
 
         this.UserId = SharedPreferenceHelper.getString(this, USER_ID, null);
@@ -98,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         paintView = findViewById(R.id.main_paint_view);
         clearButton = findViewById(R.id.clear_canvas);
         seekBar = findViewById(R.id.seekBar);
+        seekBar.setMax(100);
         redrawBtn = findViewById(R.id.redrawBtn);
         undoButton = findViewById(R.id.undo_button);
         colorPickerBtn = findViewById(R.id.color_picker);
@@ -107,6 +116,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         historyBtn = findViewById(R.id.historyBtn);
         signOut = findViewById(R.id.signOut);
         imageViewRecording = findViewById(R.id.image_recording);
+        recyclerRecords = findViewById(R.id.recyvlerForRecords);
+
         screenOn = SharedPreferenceHelper.getBoolean(getApplicationContext(),KEEP_SCREEN,true);
         if (!screenOn)
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -127,8 +138,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                String dynamicText = String.valueOf(progress-20);
-//                userChosenPercent = progress-20;
+                String dynamicText = String.valueOf(progress);
+                userChosenPercent = progress;
                 TextDrawable drawable = TextDrawable.builder()
                         .beginConfig()
                         .fontSize(40)
@@ -154,8 +165,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void getIncomingIntent() {
         if (getIntent().hasExtra("name")) {
             setTitle(getIntent().getStringExtra("name"));
-            sender_id = getIntent().getStringExtra("receiver_id");
+            sender_id = getIntent().getStringExtra("receiver_token");
         }
+
+        if (getIntent().hasExtra("phone")){
+            String name = SharedPreferenceHelper.getString(this,getIntent().getStringExtra("phone"),"DrawMessenger");
+            getSupportActionBar().setTitle(name);
+        }
+
         if (getIntent().hasExtra("accepted")) {
             Map data = new HashMap();
             data.put("phone", FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
@@ -205,11 +222,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         selfUserPath.setListener(new UserPath.Listener() {
             @Override
             public void onAddFrame(PaintView.Frame frame) {
-                frame.x1Perc = getPercentX(frame.x1);
-                frame.x2Perc = getPercentX(frame.x2);
+                frame.x1Perc = (getPercentX(frame.x1) / 100) * userChosenPercent;
+                frame.x2Perc = (getPercentX(frame.x2)/ 100) * userChosenPercent;
 
-                frame.y1Perc = getPercentY(frame.y1);
-                frame.y2Perc = getPercentY(frame.y2);
+                frame.y1Perc = (getPercentY(frame.y1) / 100) * userChosenPercent;
+                frame.y2Perc = (getPercentY(frame.y2) / 100) * userChosenPercent;
 
                 String data = SerializationUtil.objectToString(frame);
 
@@ -458,9 +475,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 paintView.clearAllUserCanvas();
                 break;
             case R.id.redrawBtn:
-                selfUserPath.redrawFrames();
-
-                animateRecording();
+                record();
                 break;
             case R.id.undo_button:
                 selfUserPath.undo();
@@ -475,23 +490,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void animateRecording() {
+    private void record() {
         Animation animation = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.record_anim);
 
         if (recording){
+            selfUserPath.redrawFrames(true);
             imageViewRecording.setVisibility(View.VISIBLE);
             redrawBtn.setImageResource(R.drawable.ic_pause_black_24dp);
             imageViewRecording.startAnimation(animation);
             recording = false;
         } else {
+//            selfUserPath.redrawFrames(false);
             redrawBtn.setImageResource(R.drawable.ic_play_arrow_black_24dp);
             imageViewRecording.clearAnimation();
             animation.cancel();
             animation.reset();
             imageViewRecording.setVisibility(View.INVISIBLE);
-
             recording = true;
+            selfUserPath.redrawThis(selfUserPath.getFrames());
+//            openDialog();
+
         }
+    }
+
+    private void openDialog() {
+        SaveRecordDialog saveRecordDialog = new SaveRecordDialog();
+        saveRecordDialog.show(getSupportFragmentManager(), "Save");
+//        Log.e("TAG", "openDialog: " +UserPath.frames4repeat.size());
     }
 
     @Override
@@ -521,4 +546,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         moveTaskToBack(true);
     }
 
+    @Override
+    public void applyName(String name) {
+        Intent intent = new Intent(MainActivity.this,HistoryActivity.class);
+        intent.putExtra("name",name);
+        startActivity(intent);
+    }
 }

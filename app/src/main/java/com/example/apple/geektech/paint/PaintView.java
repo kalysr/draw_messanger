@@ -16,6 +16,11 @@ import java.util.Map;
 
 public class PaintView extends View {
 
+    @Override
+    public boolean performClick() {
+        return super.performClick();
+    }
+
     private float mCurrX = 0f;
     private float mCurrY = 0f;
     private float mStartX = 0f;

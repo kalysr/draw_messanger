@@ -4,8 +4,13 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static com.example.apple.geektech.activities.LoginActivity.TAG;
 
 public class UserPath implements ILayer {
     public static final String ACTION_CLEAR_CANVAS = "ACTION_CLEAR_CANVAS";
@@ -16,7 +21,7 @@ public class UserPath implements ILayer {
 
     private ArrayList<Line> lines = new ArrayList<>(0);
     private ArrayList<PaintView.Frame> frames = new ArrayList<>(0);
-    private ArrayList<PaintView.Frame> frames4repeat = new ArrayList<>(0);
+    public static ArrayList<PaintView.Frame> frames4repeat = new ArrayList<>(0);
     private int current_position = 0;
 
     private String id;
@@ -25,7 +30,7 @@ public class UserPath implements ILayer {
     private float strokeWidth = 8f;
     private int penColor = Color.BLACK;
     private PaintView paintView;
-
+    int lastPoint = 0;
 
 
     public float getCircleSize() {
@@ -75,17 +80,21 @@ public class UserPath implements ILayer {
         this.paintView = paintView;
         init();
     }
-    public UserPath(String id, PaintView paintView,Context context) {
+    public UserPath() {
+        init();
+    }
+
+    public UserPath(String id, PaintView paintView, Context context) {
         this.id = id;
         this.paintView = paintView;
-        this.context =context;
+        this.context = context;
         init();
     }
 
 
     private void init() {
         Path mPath = new Path();
-        mLine = new Line(mPath,getClonePaint());
+        mLine = new Line(mPath, getClonePaint());
         lines.add(mLine);
 
     }
@@ -103,6 +112,7 @@ public class UserPath implements ILayer {
     public ArrayList<PaintView.Frame> getFrames() {
         return frames;
     }
+    public ArrayList<PaintView.Frame> getFrames4repeat() { return frames4repeat; }
 
     public void clearCanvas() {
         if (listener != null) {
@@ -128,6 +138,7 @@ public class UserPath implements ILayer {
 
     public void _clearFrames() {
         frames = new ArrayList<>(0);
+        frames4repeat = new ArrayList<>(0);
         mLine.getPath().reset();
         lines = new ArrayList<>(0);
         lines.add(mLine);
@@ -135,11 +146,30 @@ public class UserPath implements ILayer {
         paintView.invalidate();
     }
 
-    public void redrawFrames() {
-        current_position = 0;
-        try {
+    public void redrawFrames(boolean first) {
+        Log.e(TAG, "redrawFrames: " + first);
+        if (first){
+        lastPoint = frames.size();
+                 } else
+//        try {
             clearCanvas();
-            _redrawFrames();
+                current_position = lastPoint;
+                for (int i = lastPoint; i < frames.size() ; i++) {
+                    frames4repeat.add(frames.get(i));
+                }
+                Log.e(TAG, "redrawFrames: " + Arrays.toString(frames4repeat.toArray()) );
+//            _redrawFrames();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+
+//        }
+    }
+    public void redrawThis(ArrayList<PaintView.Frame> frames) {
+
+        Log.e(TAG, "redrawThis: Frames " + frames );
+        _clearFrames();
+        try {
+            _redrawThis(frames);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -166,6 +196,7 @@ public class UserPath implements ILayer {
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
+                        Log.e("tag", "run: cur pos " + current_position + " frame size " + frames.size());
                         if (frames.size() > current_position) {
                             switch (frames.get(current_position).type) {
                                 case PaintView.Frame.LINE_TO:
@@ -198,6 +229,44 @@ public class UserPath implements ILayer {
                     }
                 }, 10);
     }
+    private void _redrawThis(final ArrayList<PaintView.Frame> frames) throws InterruptedException {
+
+        new android.os.Handler().postDelayed(
+                new Runnable() {
+                    public void run() {
+                        Log.e("tag", "run: cur pos " + current_position + " frame size " + frames.size());
+                        if (frames.size() > current_position) {
+                            switch (frames.get(current_position).type) {
+                                case PaintView.Frame.LINE_TO:
+                                    mLine.getPath().lineTo(frames.get(current_position).x1, frames.get(current_position).y1);
+                                    break;
+                                case PaintView.Frame.CIRCLE:
+                                    mLine.getPath().addCircle(frames.get(current_position).x1, frames.get(current_position).y1, circleSize, Path.Direction.CW);
+                                    break;
+                                case PaintView.Frame.MOVE_TO:
+                                    mLine.getPath().moveTo(frames.get(current_position).x1, frames.get(current_position).y1);
+                                    break;
+                                default:
+                                    mLine.getPath().quadTo(
+                                            frames.get(current_position).x1,
+                                            frames.get(current_position).y1,
+                                            frames.get(current_position).x2,
+                                            frames.get(current_position).y2
+                                    );
+                            }
+
+                            paintView.invalidate();
+
+                            current_position++;
+                            try {
+                                _redrawThis(frames);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }, 10);
+    }
 
     public void addFrame(final PaintView.Frame frame) {
         if (listener != null) {
@@ -210,7 +279,7 @@ public class UserPath implements ILayer {
             switch (frame.type) {
                 case PaintView.Frame.LINE_TO:
                     mLine.getPath().lineTo(frame.x1, frame.y1);
-                    mLine = new Line(new Path(),getClonePaint());
+                    mLine = new Line(new Path(), getClonePaint());
                     lines.add(mLine);
                     break;
                 case PaintView.Frame.CIRCLE:

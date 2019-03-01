@@ -14,12 +14,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.example.apple.geektech.activities.ProfileActivity;
 import com.example.apple.geektech.R;
-import com.google.firebase.database.collection.LLRBNode;
+import com.example.apple.geektech.models.UserObject;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserListViewHolder> {
 
@@ -27,7 +27,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
     Context mContext;
 
 
-    public UserListAdapter(Context context,ArrayList<UserObject> userList) {
+    public UserListAdapter(Context context, ArrayList<UserObject> userList) {
         this.userList = userList;
         this.mContext = context;
     }
@@ -36,8 +36,8 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
     @Override
     public UserListViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
 
-        View layoutView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_user,null,false);
-        RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        View layoutView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_user, viewGroup, false);
+        RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         layoutView.setLayoutParams(lp);
 
         UserListViewHolder rcv = new UserListViewHolder(layoutView);
@@ -56,10 +56,10 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
             @Override
             public void onClick(View v) {
 
-                Intent intent = new Intent(mContext,ProfileActivity.class);
-                intent.putExtra("name",userList.get(i).getName());
-                intent.putExtra("receiver_id",userList.get(i).getToken());
-                intent.putExtra("uid",userList.get(i).getUid());
+                Intent intent = new Intent(mContext, ProfileActivity.class);
+                intent.putExtra("name", userList.get(i).getName());
+                intent.putExtra("receiver_token", userList.get(i).getToken());
+                intent.putExtra("uid", userList.get(i).getUid());
 
                 mContext.startActivity(intent);
             }
@@ -69,24 +69,17 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
     }
 
     private Drawable getDrawable(String name) {
+
         TextDrawable drawable = TextDrawable.builder()
                 .beginConfig()
                 .fontSize(100)
                 .bold()
                 .textColor(Color.WHITE)
+                .toUpperCase()
                 .endConfig()
-                .buildRoundRect(name.substring(0,1) , getRandomColor() ,100);
+                .buildRound(name.substring(0, 1), ColorGenerator.MATERIAL.getRandomColor());
 
         return drawable;
-    }
-
-    private int getRandomColor() {
-        Integer[] colors = new Integer[]{
-        Color.CYAN, Color.BLUE,Color.GREEN,Color.MAGENTA,Color.LTGRAY
-        };
-        Random random = new Random();
-//        random.nextInt()
-        return colors[random.nextInt(4)];
     }
 
     @Override
@@ -95,8 +88,10 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
     }
 
     public class UserListViewHolder extends RecyclerView.ViewHolder {
-        TextView mName, mPhone, mlastSeen; ImageView imageView;
+        TextView mName, mPhone, mlastSeen;
+        ImageView imageView;
         LinearLayout parentLayout;
+
         public UserListViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -107,7 +102,4 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
             imageView = itemView.findViewById(R.id.userPhotoIV);
         }
     }
-
-
-
 }

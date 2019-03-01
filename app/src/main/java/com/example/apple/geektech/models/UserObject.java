@@ -1,4 +1,4 @@
-package com.example.apple.geektech.Utils;
+package com.example.apple.geektech.models;
 
 public class UserObject {
         String  name;

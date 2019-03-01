@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -29,15 +30,15 @@ import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    Button sendRequestBtn, declineFrienRequestBtn;
+    Button sendRequestBtn, declineFriendRequestBtn;
     ImageView profilePhoto;
     TextView statusTV, contactNameTV;
-
+    final String TAG = ProfileActivity.class.getSimpleName();
     DatabaseReference userReference;
     DatabaseReference friendRequestReference, notificationsReference;
     private String CURRENT_STATE;
-    String receiver_id;
-    String receiver_uid="";
+    String receiver_token;
+    String receiver_uid;
     String sender_id;
     FirebaseAuth mAuth;
 
@@ -48,59 +49,57 @@ public class ProfileActivity extends AppCompatActivity {
         Slidr.attach(this);
         setContentView(R.layout.activity_profile);
         init();
-
-        userReference.child(receiver_id).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        if (sender_id != null && receiver_token != null) {
+            userReference.child(receiver_token).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 //                String photo = dataSnapshot.child("user_photo").getValue().toString();
 //                String status = dataSnapshot.child("user_status").getValue().toString();
 
 //                statusTV.setText(status);
 
-                friendRequestReference.child(sender_id)
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.hasChild(receiver_id)) {
-                                    String req_type = dataSnapshot.child(receiver_id).child("request_type").getValue().toString();
-                                    if (req_type.equals("sent")) {
-                                        CURRENT_STATE = "request_sent";
-                                    } else CURRENT_STATE = "";
+                    friendRequestReference.child(sender_id)
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.hasChild(receiver_token)) {
+                                        String req_type = dataSnapshot.child(receiver_token).child("request_type").getValue().toString();
+                                        if (req_type.equals("sent")) {
+                                            CURRENT_STATE = "request_sent";
+                                        } else CURRENT_STATE = "";
+                                    }
                                 }
-                            }
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                            }
-                        });
-            }
+                                }
+                            });
+                }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
-
-
-        sendRequestBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendFriendRequest();
-              }
-        });
-
+                }
+            });
+            sendRequestBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    sendFriendRequest();
+                }
+            });
+        }
     }
 
     private void sendFriendRequest() {
         sendNotification();
-        friendRequestReference.child(sender_id).child(receiver_id).child("request_type")
+        friendRequestReference.child(sender_id).child(receiver_token).child("request_type")
                 .setValue("sent").addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
 
-                    friendRequestReference.child(receiver_id).child(sender_id)
+                    friendRequestReference.child(receiver_token).child(sender_id)
                             .child("request_type").setValue("receiver")
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
@@ -118,7 +117,7 @@ public class ProfileActivity extends AppCompatActivity {
         });
         Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
         intent.putExtra("name", getIntent().getStringExtra("name"));
-        intent.putExtra("receiver_id", receiver_uid);
+        intent.putExtra("receiver_token", receiver_uid);
         startActivity(intent);
         finish();
 
@@ -126,23 +125,23 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void sendNotification() {
         String phoneNumber = mAuth.getCurrentUser().getPhoneNumber();
-        String body = phoneNumber +" wants to send a message.";
+        String body =  " wants to send a message.";
 
         Map data = new HashMap();
         data.put("title", "Notification");
         data.put("phone", phoneNumber);
         data.put("body", body);
-        data.put("id",mAuth.getCurrentUser().getUid());
-        data.put("sender_token", SharedPreferenceHelper.getString(ProfileActivity.this,"token","no token"));
+        data.put("id", mAuth.getCurrentUser().getUid());
+        data.put("sender_token", SharedPreferenceHelper.getString(ProfileActivity.this, "token", "no token"));
 
-        NotificationApi.send( receiver_id, MyFirebaseMessagingService.TYPE_INVITE_REQUEST,data);
+        NotificationApi.send(receiver_token, MyFirebaseMessagingService.TYPE_INVITE_REQUEST, data);
 
     }
 
     private void init() {
         sendRequestBtn = findViewById(R.id.send_friend_request_btn);
-        declineFrienRequestBtn = findViewById(R.id.decline_friend_request_btn);
-        profilePhoto = findViewById(R.id.prifileImage);
+        declineFriendRequestBtn = findViewById(R.id.decline_friend_request_btn);
+        profilePhoto = findViewById(R.id.profileImage);
         contactNameTV = findViewById(R.id.contactNameTV);
         statusTV = findViewById(R.id.status_TV);
 
@@ -169,9 +168,11 @@ public class ProfileActivity extends AppCompatActivity {
 
         if (getIntent().hasExtra("name")) {
             contactNameTV.setText(getIntent().getStringExtra("name"));
-            receiver_id = getIntent().getStringExtra("receiver_id");
+            receiver_token = getIntent().getStringExtra("receiver_token");
             receiver_uid = getIntent().getStringExtra("uid");
-            Toast.makeText(this, receiver_id + "", Toast.LENGTH_SHORT).show();
+//            Log.e(TAG, "getIntentExtras: ID " + receiver_token);
+//            Log.e(TAG, "getIntentExtras: uID " + receiver_uid );
+//            Toast.makeText(this, receiver_token + "", Toast.LENGTH_SHORT).show();
         }
     }
 }

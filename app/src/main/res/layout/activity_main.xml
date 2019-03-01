@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".activities.MainActivity">
+
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -18,33 +19,36 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/scroll"
-            android:background="@drawable/gradient" >
+            android:background="@drawable/gradient">
 
         </com.example.apple.geektech.paint.PaintView>
 
         <HorizontalScrollView
             android:id="@+id/scroll"
-            android:layout_width="wrap_content"
-
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true">
+            android:layout_alignParentBottom="true"
+            android:background="@color/colorPrimary">
 
 
             <LinearLayout
                 android:id="@+id/tools"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/colorPrimary"
-                android:paddingHorizontal="15dp"
-                android:paddingVertical="10dp"
+                android:paddingTop="15dp"
+                android:paddingRight="10dp"
+                android:paddingBottom="10dp"
                 android:scrollbars="horizontal">
 
                 <ImageButton
                     android:id="@+id/undo_button"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginEnd="15dp"
                     android:layout_marginRight="15dp"
                     android:background="@drawable/circle_button"
+                    android:contentDescription="@string/undo"
                     android:src="@drawable/ic_undo_black_24dp"
                     android:text="@string/clear" />
 
@@ -54,6 +58,7 @@
                     android:layout_height="40dp"
                     android:layout_marginRight="15dp"
                     android:background="@drawable/circle_button"
+                    android:contentDescription="@string/clear"
                     android:src="@drawable/ic_clear_black_24dp"
                     android:text="@string/clear" />
 
@@ -63,8 +68,9 @@
                     android:layout_height="40dp"
                     android:layout_marginRight="15dp"
                     android:background="@drawable/circle_button"
+                    android:contentDescription="@string/record"
                     android:src="@drawable/ic_play_arrow_black_24dp"
-                    android:text="@string/clear" />
+                    android:text="@string/record" />
 
                 <ImageButton
                     android:id="@+id/color_picker"
@@ -72,8 +78,9 @@
                     android:layout_height="40dp"
                     android:layout_marginRight="15dp"
                     android:background="@drawable/circle_button"
+                    android:contentDescription="@string/color"
                     android:src="@drawable/ic_colorize_black_24dp"
-                    android:text="@string/clear" />
+                    android:text="@string/color" />
 
                 <ImageButton
                     android:id="@+id/gridBtn"
@@ -81,6 +88,7 @@
                     android:layout_height="40dp"
                     android:layout_marginRight="15dp"
                     android:background="@drawable/circle_button"
+                    android:contentDescription="@string/grid"
                     android:src="@drawable/ic_grid_on_black_24dp" />
 
                 <ImageButton
@@ -89,6 +97,7 @@
                     android:layout_height="40dp"
                     android:layout_marginRight="15dp"
                     android:background="@drawable/circle_button"
+                    android:contentDescription="@string/contacts"
                     android:src="@drawable/ic_contact_phone_black_24dp" />
 
                 <ImageButton
@@ -97,6 +106,7 @@
                     android:layout_height="40dp"
                     android:layout_marginRight="15dp"
                     android:background="@drawable/circle_button"
+                    android:contentDescription="@string/online_users"
                     android:src="@drawable/ic_account_circle_black_24dp" />
 
 
@@ -106,6 +116,7 @@
                     android:layout_height="40dp"
                     android:layout_marginRight="15dp"
                     android:background="@drawable/circle_button"
+                    android:contentDescription="@string/history"
                     android:src="@drawable/ic_history_black_24dp" />
 
                 <ImageButton
@@ -114,31 +125,36 @@
                     android:layout_height="40dp"
                     android:layout_weight="1"
                     android:background="@drawable/circle_button"
+                    android:contentDescription="@string/sign_out"
                     android:src="@drawable/ic_exit_to_app_black_24dp" />
 
             </LinearLayout>
         </HorizontalScrollView>
+
         <ImageView
-            android:visibility="invisible"
-            android:layout_marginTop="15dp"
-            android:layout_marginLeft="15dp"
             android:id="@+id/image_recording"
-            android:src="@drawable/ic_fiber_manual_record_black_24dp"
             android:layout_width="30dp"
-            android:layout_height="30dp" />
+            android:layout_height="30dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="15dp"
+            android:contentDescription="@string/record"
+            android:src="@drawable/ic_fiber_manual_record_black_24dp"
+            android:visibility="invisible" />
 
         <SeekBar
             android:id="@+id/seekBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/scroll"
-            android:paddingBottom="16dp"
+            android:layout_centerHorizontal="true"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:layout_centerHorizontal="true"
-
             android:max="40"
+
+            android:paddingBottom="16dp"
             android:progress="20" />
 
+
     </RelativeLayout>
+
 </android.support.constraint.ConstraintLayout>

@@ -13,16 +13,15 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.apple.geektech.R;
-import com.example.apple.geektech.Utils.CountryToPhonePrfix;
+import com.example.apple.geektech.Utils.CountryToPhonePrefix;
 import com.example.apple.geektech.Utils.SharedPreferenceHelper;
 import com.example.apple.geektech.Utils.UserListAdapter;
-import com.example.apple.geektech.Utils.UserObject;
+import com.example.apple.geektech.models.UserObject;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -40,9 +39,7 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
 
     public static final int MY_PERMISSIONS_REQUEST_CODE = 1;
     private static final String TAG = "TAG";
-    private RecyclerView mUserList;
     private static RecyclerView.Adapter mUserListAdapter;
-    private RecyclerView.LayoutManager mUserListLayoutManager;
     public Context context;
     static ArrayList<UserObject> userList;
     static ArrayList<UserObject> contactList;
@@ -60,7 +57,6 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
         userList = new ArrayList<>();
         contactList = new ArrayList<>();
         getSupportActionBar().setTitle("Friends");
-//        getActionBar().setTitle("Friends");
 
         initializerRecycleView();
 
@@ -131,7 +127,6 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
 
 
                     for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-                        Log.d(TAG, "FriendsAc: " + childSnapshot.getKey());
                         uid = childSnapshot.getKey();
                         if (childSnapshot.child("phone").getValue() != null)
                             phone = childSnapshot.child("phone").getValue().toString();
@@ -145,13 +140,9 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
                             }
 
                             if (childSnapshot.child("userState").getValue() != null) {
-                                Log.e(TAG, "onDataChange: User " + phone);
                                 lastSeenDate = (String) childSnapshot.child("userState").child("date").getValue();
-                                Log.e(TAG, "onDataChange: LastSeenDate  " + lastSeenDate);
                                 lastSeen = (String) childSnapshot.child("userState").child("state").getValue();
-
                                 lastSeenTime = (String) childSnapshot.child("userState").child("time").getValue();
-
                                 if (lastSeen.equals("offline")) {
                                     lastSeen = lastSeenTime + " " + lastSeenDate;
                                 }
@@ -202,7 +193,7 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     getContactList();
                 } else
-                    Toast.makeText(context, "PERSMISSION DENIED", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "PERSMISSION DENIED", Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -214,15 +205,16 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void initializerRecycleView() {
-        mUserList = findViewById(R.id.userlistRV);
+        RecyclerView mUserList = findViewById(R.id.userlistRV);
         mUserList.setNestedScrollingEnabled(false);
         mUserList.setHasFixedSize(false);
+        mUserList.setItemViewCacheSize(50);
 
 
         mUserListAdapter = new UserListAdapter(this, userList);
         mUserList.setAdapter(mUserListAdapter);
 
-        mUserListLayoutManager = new LinearLayoutManager(context, LinearLayout.VERTICAL, false);
+        RecyclerView.LayoutManager mUserListLayoutManager = new LinearLayoutManager(context, LinearLayout.VERTICAL, false);
         mUserList.setLayoutManager(mUserListLayoutManager);
 
     }
@@ -237,7 +229,7 @@ public class FriendsActivity extends AppCompatActivity implements View.OnClickLi
                 iso = telephonyManager.getNetworkCountryIso();
 
 
-        return CountryToPhonePrfix.getPhone(iso);
+        return CountryToPhonePrefix.getPhone(iso);
     }
 
     @Override

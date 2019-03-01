@@ -32,13 +32,13 @@ public class NotificationApi {
     public static class Data {
         private String title;
         private String body;
-        private String recieverToken;
+        private String receiverToken;
         private String senderToken;
 
-        public Data(String title, String body, String recieverToken, String senderToken) {
+        public Data(String title, String body, String receiverToken, String senderToken) {
             this.title = title;
             this.body = body;
-            this.recieverToken = recieverToken;
+            this.receiverToken = receiverToken;
             this.senderToken = senderToken;
         }
 
@@ -46,7 +46,7 @@ public class NotificationApi {
             Map data = new HashMap();
             data.put("title", title);
             data.put("body", body);
-            data.put("receiverToken", recieverToken);
+            data.put("receiverToken", receiverToken);
             return data;
         }
     }

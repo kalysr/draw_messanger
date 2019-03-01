@@ -10,18 +10,21 @@
     tools:context=".activities.ProfileActivity">
 
 <ImageView
-    android:id="@+id/prifileImage"
+    android:id="@+id/profileImage"
     android:src="@drawable/ic_account_circle_black_24dp"
     app:layout_constraintLeft_toLeftOf="parent"
     app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
     android:layout_width="250dp"
-    android:layout_height="250dp" />
+    android:layout_height="250dp"
+    android:contentDescription="@string/profile_photo"
+    />
 
     <TextView
         android:id="@+id/contactNameTV"
         android:text="@string/app_name"
         android:textSize="24sp"
-        app:layout_constraintTop_toBottomOf="@id/prifileImage"
+        app:layout_constraintTop_toBottomOf="@id/profileImage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

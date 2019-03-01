@@ -3,7 +3,7 @@ package com.example.apple.geektech.Utils;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CountryToPhonePrfix {
+public class CountryToPhonePrefix {
 
     public static String getPhone(String code) {
         return country2phone.get(code.toUpperCase());

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Draw Messanger</string>
+    <string name="app_name">Draw Messenger</string>
     <string name="clear">Clear</string>
     <string name="redraw">Redraw</string>
     <string name="clear_frames">Clear frames</string>
@@ -8,8 +8,8 @@
     <string name="received_code">Received code</string>
     <string name="title_activity_history">HistoryActivity</string>
     <string name="verification_code">Verification Code</string>
-    <string name="text">DrawMessanger will send an SMS message to verify yout phone number. Enter your country code and phone number: </string>
-    <string name="default_notification_channel_id">draw_messanger_channel_id</string>
+    <string name="text">DrawMessenger will send an SMS message to verify your phone number. Enter your country code and phone number: </string>
+    <string name="default_notification_channel_id">draw_messenger_channel_id</string>
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
@@ -83,5 +83,17 @@
     <string name="pref_ringtone_silent">Silent</string>
 
     <string name="pref_title_vibrate">Vibrate</string>
+    <string name="undo">Undo</string>
+    <string name="record">Record</string>
+    <string name="color">Color</string>
+    <string name="grid">Grid</string>
+    <string name="contacts">Contacts</string>
+    <string name="online_users">Online Users</string>
+    <string name="history">History</string>
+    <string name="sign_out">Sign out</string>
+    <string name="user_photo">user_photo</string>
+    <string name="profile_photo">Profile Photo</string>
+    <string name="cache_draw_records">Cache draw-records</string>
+    <string name="name">name...</string>
 
 </resources>
